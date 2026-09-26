@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Hero from './sections/Hero';
 import About from './sections/About';
 import Projects from './sections/Projects';
@@ -10,6 +10,14 @@ import { AeroProvider } from './win/AeroWindow';
 
 export default function Site() {
   const [world2, setWorld2] = useState(false);
+  // Set when the user exits World 2, so the remounted doorway stays blocked
+  // until they scroll back above it — exiting must not re-trigger the entry.
+  const exitedRef = useRef(false);
+
+  const exitWorld2 = () => {
+    exitedRef.current = true;
+    setWorld2(false);
+  };
 
   return (
     <AeroProvider>
@@ -18,10 +26,10 @@ export default function Site() {
         <About />
         <Projects />
         <Research />
-        {!world2 && <TransitionSpacer onEnter={() => setWorld2(true)} />}
+        {!world2 && <TransitionSpacer onEnter={() => setWorld2(true)} blockedInitially={exitedRef.current} />}
         <Contact />
       </main>
-      {world2 && <World2 onExit={() => setWorld2(false)} />}
+      {world2 && <World2 onExit={exitWorld2} />}
     </AeroProvider>
   );
 }

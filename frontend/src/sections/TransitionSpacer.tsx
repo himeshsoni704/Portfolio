@@ -7,16 +7,30 @@ import { motion } from 'framer-motion';
 // through it darkens the page; past the threshold, World 2 opens.
 // ─────────────────────────────────────────────────────────────
 
-export default function TransitionSpacer({ onEnter }: { onEnter: () => void }) {
+export default function TransitionSpacer({
+  onEnter,
+  blockedInitially = false,
+}: {
+  onEnter: () => void;
+  blockedInitially?: boolean;
+}) {
   const ref = useRef<HTMLElement>(null);
   const [p, setP] = useState(0);
   const fired = useRef(false);
+  const blocked = useRef(blockedInitially);
 
   useEffect(() => {
     const onScroll = () => {
       const el = ref.current;
       if (!el || fired.current) return;
       const rect = el.getBoundingClientRect();
+      if (blocked.current) {
+        // After exiting World 2 the viewport sits past this doorway (inside
+        // Contact). Stay blocked until the user has scrolled fully above it
+        // — back into the portfolio — then re-arm normally.
+        if (rect.top > window.innerHeight) blocked.current = false;
+        return;
+      }
       const total = rect.height - window.innerHeight * 0.6;
       const v = Math.min(Math.max(-rect.top / Math.max(total, 1), 0), 1);
       setP(v);
