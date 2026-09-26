@@ -1,37 +1,27 @@
 import { useState } from 'react';
 import Hero from './sections/Hero';
 import About from './sections/About';
-import SpaceTransition from './sections/SpaceTransition';
 import Projects from './sections/Projects';
 import Research from './sections/Research';
-import Experiments from './sections/Experiments';
-import Photography from './sections/Photography';
-import Journey from './sections/Journey';
+import TransitionSpacer from './sections/TransitionSpacer';
 import Contact from './sections/Contact';
+import World2 from './world/World2';
 import { AeroProvider } from './win/AeroWindow';
-import SkillsDrawer from './win/SkillsDrawer';
-import MediaPlayer from './win/MediaPlayer';
-import RockyChat from './win/RockyChat';
 
 export default function Site() {
-  const [skillsOpen, setSkillsOpen] = useState(false);
+  const [world2, setWorld2] = useState(false);
 
   return (
     <AeroProvider>
       <main data-testid="portfolio-site">
         <Hero />
         <About />
-        <SpaceTransition />
         <Projects />
         <Research />
-        <Experiments />
-        <Photography />
-        <Journey onOpenSkills={() => setSkillsOpen(true)} />
+        {!world2 && <TransitionSpacer onEnter={() => setWorld2(true)} />}
         <Contact />
       </main>
-      <SkillsDrawer open={skillsOpen} onClose={() => setSkillsOpen(false)} />
-      <MediaPlayer />
-      <RockyChat />
+      {world2 && <World2 onExit={() => setWorld2(false)} />}
     </AeroProvider>
   );
 }

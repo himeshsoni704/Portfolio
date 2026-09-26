@@ -156,6 +156,31 @@
         -webkit-backdrop-filter: blur(24px) saturate(1.3);
     }
 
+    /* night mode — World 2 Windows environment */
+    .aero-surface-night {
+        background: linear-gradient(170deg, rgba(17, 36, 60, 0.97) 0%, rgba(9, 22, 40, 0.97) 100%) !important;
+    }
+
+    /* night window bodies: dark via invert trick, images double-inverted back */
+    .aero-body-night {
+        background: #E8F1FA;
+        filter: invert(1) hue-rotate(180deg) brightness(1.06);
+    }
+    .aero-body-night img,
+    .aero-body-night canvas,
+    .aero-body-night video {
+        filter: invert(1) hue-rotate(180deg);
+    }
+
+    /* settings motion override */
+    [data-motion='reduced'] *,
+    [data-motion='reduced'] *::before,
+    [data-motion='reduced'] *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
     /* photo viewer round button */    .viewer-btn {
         display: grid;
         place-items: center;

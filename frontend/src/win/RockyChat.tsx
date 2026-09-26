@@ -90,7 +90,7 @@ export default function RockyChat() {
         initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: open ? 0 : 1, scale: open ? 0.6 : 1, pointerEvents: open ? 'none' : 'auto' }}
         transition={{ delay: open ? 0 : 1.2, duration: 0.5 }}
-        className="fixed bottom-5 right-5 z-[150] flex items-center gap-3 rounded-full border-2 border-white/70 py-2 pl-2.5 pr-5 shadow-[0_14px_40px_rgba(10,60,110,0.45)] transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-[78px] right-5 z-[150] flex items-center gap-3 rounded-full border-2 border-white/70 py-2 pl-2.5 pr-5 shadow-[0_14px_40px_rgba(10,60,110,0.45)] transition-transform hover:scale-105 active:scale-95"
         style={{ background: 'linear-gradient(165deg, rgba(246,251,255,0.92), rgba(190,226,250,0.85))', backdropFilter: 'blur(16px)' }}
       >
         <RockyCharacter className="h-10 w-10" />
@@ -111,8 +111,8 @@ export default function RockyChat() {
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className={`fixed z-[155] flex flex-col overflow-hidden rounded-2xl border border-white/60 shadow-[0_40px_90px_rgba(4,30,60,0.5)] ${
               mobile
-                ? 'inset-x-3 bottom-3 h-[72vh]'
-                : 'bottom-5 right-5 h-[560px] max-h-[76vh] w-[400px]'
+                ? 'inset-x-3 bottom-[68px] h-[68vh]'
+                : 'bottom-[78px] right-5 h-[560px] max-h-[74vh] w-[400px]'
             }`}
             style={{ background: 'linear-gradient(170deg, rgba(246,251,255,0.96), rgba(222,238,251,0.94))', backdropFilter: 'blur(24px)' }}
             role="dialog"

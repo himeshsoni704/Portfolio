@@ -3,21 +3,24 @@ export type JourneyEntry = {
   title: string;
   short: string;
   details: string[];
+  metric?: string;
 };
 
-// Factually accurate, supplied by Himesh. Nothing fabricated.
+// Factually accurate — scores supplied by Himesh.
 export const JOURNEY: JourneyEntry[] = [
   {
     year: '2022',
     title: 'ICSE',
     short: 'Completed ICSE.',
-    details: ['Completed ICSE.'],
+    metric: 'ICSE — 95',
+    details: ['Completed ICSE — 95.'],
   },
   {
     year: '2024',
     title: 'ISC',
     short: 'Completed ISC.',
-    details: ['Completed ISC.'],
+    metric: 'ISC — 92.3',
+    details: ['Completed ISC — 92.3.'],
   },
   {
     year: '2024',
@@ -37,9 +40,10 @@ export const JOURNEY: JourneyEntry[] = [
   {
     year: '2026',
     title: 'Research & Exploration',
-    short: 'Quantum computing · QKD · ML · Computer vision · Scheduling · AI systems.',
+    short: 'AI / ML, Quantum, Computer Vision and ongoing research.',
+    metric: 'QUANTUM · CV · SCHEDULING · AI SYSTEMS',
     details: [
-      'Research across: quantum computing, QKD, ML, computer vision, scheduling, AI systems.',
+      'AI / ML, Quantum, Computer Vision and ongoing research.',
       'Ongoing: QKD Eve detection, ML for scheduling, reliability-aware retinal grading, efficient vision patch selection.',
     ],
   },

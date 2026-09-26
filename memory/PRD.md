@@ -1,34 +1,30 @@
-# PRD — Himesh Soni Portfolio ("HimeshOS — Aero cinematic edition")
+# PRD — Himesh Soni Portfolio ("HimeshOS — Two Worlds Edition")
 
-## Original Problem Statement (current, v3)
-A modern cinematic scrolling portfolio that opens with a Windows Vista-inspired boot + login, then becomes a normal scrolling website: Hero → About → cinematic scroll-driven SPACE transition (stars, nebulae, spaceship, Rocky 3D) → Projects → Research → Experiments → Photography & Film → My Journey timeline → Skills drawer → Media player → Contact. Windows 7 Aero styling appears ONLY inside floating windows (project details, research notes, photo viewer, timeline info, skills drawer, media player, Rocky chatbot) — ~20% Windows, 80% modern portfolio. No desktop OS simulation, no taskbar, no start menu.
+## Original Problem Statement (current, v4)
+Two distinct worlds with one story:
+- **World 1 — Modern cinematic portfolio (kept as designed)**: Vista-inspired boot ("Starting...") → Vista login (Himesh Soni · Welcome) → bright modern scrolling portfolio: Hero → About Me → "Things I've Built" (projects) → "Things I'm Investigating" (research). Clicking cards opens floating Aero windows.
+- **The Transition**: after Research, a cinematic doorway — the page darkens, content fades, a light-bloom flash, "WELCOME TO HIMESH'S COMPUTER".
+- **World 2 — Windows 7 + Frutiger Aero computer**: the viewport becomes Himesh's desktop (the supplied green-hills wallpaper). Full file-system metaphor: Desktop → Folder → File → Application. Working taskbar (Start orb, live taskbar buttons, tray: volume/network/day-night toggle/clock/exit), Start menu (Himesh Soni header, searchable apps, Settings, Back to Portfolio), desktop right-click menu, draggable/minimizable/maximizable Aero windows with z-focus.
+- World 2 apps: Computer + Explorer folders (Things I've Built → AI & ML / Software / Hardware & Simulation / Creative → project files → project app windows; Things I'm Investigating → research docs → Research Lab with sidebar + document pane + QKD diagram; Experiments → Pixelator app slot / Water Bottle sim / notes; Pictures → Photography + Film folders with thumbnails/details/icons views → Windows Photo Viewer with prev/next/zoom/fullscreen; Music → honest "This folder is empty" + [ADD MUSIC] + Media Player), Timeline (horizontal slider: 2022 ICSE—95 · 2024 ISC—92.3 + B.Tech · 2025 projects · 2026 research), Skills (category folders, no percentages), Settings (functional Day/Night + Motion Full/Reduced), Windows Media Player ("No track loaded"), Rocky AI (floating bottom-right, Aero chat, live AI via /api/rocky, never invents).
+- **Day/Night mode**: animated crossfade of the whole environment (wallpaper → moonlit stars, dark taskbar, dark glass via invert trick with images double-inverted), persisted in sessionStorage.
+- **Exit**: "Back to Portfolio" (taskbar + start menu) → returns to the modern "Let's Connect" section.
 
 ## Architecture
-- **Frontend**: CRA + TypeScript + Tailwind + framer-motion + Three.js.
-  - `BootLogin.tsx` — Vista boot ("Starting..." + glow progress) → login (avatar, Welcome, Enter key).
-  - `sections/SpaceScene.tsx` — Three.js cinematic act: parallax stars, nebula sprites, glossy toy spaceship flying across, planet + moon, floating pixels, ROCKY (glossy jittered rock, blinking eyes, waving arm, follows pointer), all driven by scroll progress. Spline slots: space scene + Rocky model can replace fallbacks via URL constants (in SpaceScene/RockyChat).
-  - `sections/SpaceTransition.tsx` — 320vh sticky scroll section with 4 narrative stages.
-  - `win/AeroWindow.tsx` — reusable glass window system (minimize-collapse, maximize, close, Escape, staggered open) + AeroProvider (single-instance ids).
-  - `win/` — SkillsDrawer (right slide-over), MediaPlayer (compact WMP-inspired floater, honest "No track loaded" + [ADD MUSIC]), RockyChat (floating launcher + Aero chat with waving character, Spline Rocky slot).
-  - Sections: Hero, About (Know More → Aero window), Projects (11 real projects, dark starfield), Research (4 honest ongoing entries; QKD window embeds animated ALICE→BOB/EVE diagram), Experiments (live Water Bottle sim + Pixelator integration boundary), Photography & Film (placeholders marked [ADD PHOTOGRAPH], Aero photo viewer with prev/next/fullscreen), Journey (2022 ICSE → 2026 research; entries open Aero info windows), Contact (Let's Connect, real links, ending line).
-- **Backend**: FastAPI `/api/rocky` — provider-agnostic: Emergent universal key → OpenAI gpt-5.4 with full Rocky system prompt; demo fallback (keyword knowledge base) when key absent/failing; chats logged to Mongo `rocky_chats`.
-- **Data-driven**: `data/projects.ts` (11), `research.ts` (4), `experiments.ts`, `photography.ts`, `timeline.ts`, `skills.ts`, `rockyKnowledge.ts`, `lib/site.ts`.
-- **Rules honored**: no invented metrics/links/claims; CogMap = "[Description coming soon]"; FinTeach private (no fake repo); statuses exact (PROJECT/PUBLIC/PRIVATE/ONGOING/ONGOING RESEARCH); no skill percentages; no milestones section (Currently Exploring inside About window instead); LinkedIn/email real (supplied by Himesh earlier).
+- Frontend: CRA + TS + Tailwind + framer-motion + Three.js (World 1 space scene kept from v3? — removed in v4; World 2 is the highlight) — actually v4 keeps World 1 light: boot/login + Hero/About/Projects/Research sections with Aero modal windows.
+- `src/BootLogin.tsx` (boot + login), `src/sections/` (Hero, About, Projects, Research, TransitionSpacer, Contact), `src/win/` (AeroWindow modal system + icons + ui + RockyChat), `src/world/` (World2 desktop, WinManager, Explorer, apps, fs.ts virtual file system), `src/data/` (projects, research, experiments, photography, timeline, skills, rockyKnowledge, site).
+- Backend: `/api/rocky` — Emergent universal key → OpenAI gpt-5.4 (Rocky persona, full knowledge), demo fallback, Mongo chat logs.
 
 ## Implemented (2026-09-26)
-- Boot → login → site flow with satisfying zoom/blur transitions; Enter-key + skip support.
-- Full scrolling story with the light → space → light arc; scroll-driven Three.js space act with Rocky.
-- Aero window system serving project details, research notes, photo viewer, journey details, About-more; skills drawer; media player floater; Rocky AI chat (live AI + demo mode, never invents, occasional "Amaze.").
-- Mobile: no horizontal overflow; Aero windows become near-fullscreen panels; space scene + Rocky scale down.
-- Verified end-to-end: boot, login, hero, about, space scroll stages, project/research windows (readable glass), photo viewer, journey, skills drawer, Rocky chat (live AI reply), contact; desktop 1440 + mobile 390 screenshots clean.
+- Two-world flow verified end-to-end in preview: boot → login → World 1 → transition flash → desktop reveal.
+- Working Explorer navigation (back/forward/up, breadcrumb, 3 view modes), project/research/experiment files opening real app windows, photo viewer with zoom controls, night mode with crossfade + persistence, start menu search, right-click menu, exit → contact scroll.
+- Honesty rules: CogMap "[Description coming soon]", FinTeach private (no fake repo), ONGOING statuses exact, no invented metrics/links/music/photos (all placeholders clearly marked).
 
 ## Backlog
-- **P0**: Replace photography/film placeholders with real assets (`data/photography.ts`); paste Spline space scene + Rocky model URLs (constants in `SpaceScene` fallback note / `RockyChat`).
-- **P1**: Integrate the real Pixelator JS codebase into `sections/PixelatorApp.tsx` (integration boundary documented in-file).
-- **P2**: Wire real music into `win/MediaPlayer.tsx` TRACKS; expand Rocky knowledge (frontend `rockyKnowledge.ts` + backend `ROCKY_SYSTEM`); add [ADD PROJECT LINK] repos as Himesh publishes them.
+- **P0**: Real photographs into Pictures (data/photography.ts → fs.ts images), real Spline Rocky model URL (win/RockyChat ROCKY_SPLINE_URL), Pixelator JS codebase integration (sections/PixelatorApp.tsx boundary).
+- **P1**: Music files → Media Player TRACKS, [ADD PROJECT LINK] repos as published.
+- **P2**: Taskbar hover previews, desktop gadget widgets, more World 2 apps.
 
 ## Next Tasks
-1. Send the Pixelator codebase → it becomes a real app inside its Aero window.
-2. Drop in Spline scene + Rocky model URLs.
-3. Replace placeholder photography with real shots.
-4. Add music files to the media player.
+1. Send Pixelator codebase → real app inside its window.
+2. Replace placeholder photos + add music.
+3. Paste Spline Rocky/scene URLs.
