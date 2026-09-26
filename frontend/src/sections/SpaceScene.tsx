@@ -195,24 +195,35 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     fallback.add(eyeL, eyeR, glintL, glintR, arm);
     rocky.add(fallback);
 
-    // the real model — Himesh's Rocky (textured), swaps in over the fallback
-    new GLTFLoader().load(
-      '/models/rocky.glb',
-      (gltf) => {
-        const model = gltf.scene;
-        const box = new THREE.Box3().setFromObject(model);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const scale = 1.55 / Math.max(size.x, size.y, size.z, 0.0001);
-        model.scale.setScalar(scale);
-        rocky.add(model);
-        fallback.visible = false;
-      },
-      undefined,
-      () => {
-        // load failed — the procedural Rocky stays visible
-      }
+    // the real model — Himesh's Rocky (textured), lazy-loaded when the
+    // user approaches the act; swaps in over the fallback once ready
+    let modelRequested = false;
+    const loadRockyModel = () => {
+      if (modelRequested) return;
+      modelRequested = true;
+      new GLTFLoader().load(
+        '/models/rocky.glb',
+        (gltf) => {
+          const model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const scale = 1.55 / Math.max(size.x, size.y, size.z, 0.0001);
+          model.scale.setScalar(scale);
+          rocky.add(model);
+          fallback.visible = false;
+        },
+        undefined,
+        () => {
+          // load failed — the procedural Rocky stays visible
+        }
+      );
+    };
+    const modelIO = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && loadRockyModel()),
+      { rootMargin: '1400px 0px' }
     );
+    modelIO.observe(mount);
     world.add(rocky);
     const rockyLight = new THREE.PointLight(0xdceeff, 2.6, 14);
     rockyLight.position.set(2.2, 2.6, 5.5);
@@ -344,6 +355,7 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', onPtr);
       ro.disconnect();
+      modelIO.disconnect();
       renderer.dispose();
       scene.traverse((obj) => {
         const m = obj as THREE.Mesh;
