@@ -76,6 +76,8 @@ export const ROCKY_KNOWLEDGE = {
     linkedin: 'https://ae.linkedin.com/in/himesh-soni-994326310',
     email: 'himeshsoni704@gmail.com',
     instagram: 'https://www.instagram.com/hx.cr3',
+    phone: '0567028156',
+    phoneIntl: '+971567028156',
   },
   easterEggs: [
     { q: 'are you actually a rock', a: 'Finally. Someone asks the important questions. Yes.' },

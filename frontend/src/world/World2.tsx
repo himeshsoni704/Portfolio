@@ -38,12 +38,16 @@ export default function World2({ onExit }: { onExit: () => void }) {
   }, [night]);
 
   // Back to Portfolio: show the Vista logout screen first, then return to
-  // the world right where the computer entrance is.
+  // the world's end — Himesh's real contact details. The jump is instant
+  // so the scroll never re-crosses the space act (no auto re-entry).
   const exit = () => {
     if (phase === 'logout') return;
     playLogout(); // Vista-style logout chime (respects the sound toggle)
     setPhase('logout');
-    window.setTimeout(() => onExit(), 2000);
+    window.setTimeout(() => {
+      onExit();
+      window.setTimeout(() => document.getElementById('site-end')?.scrollIntoView({ behavior: 'auto' }), 60);
+    }, 2000);
   };
 
   return (

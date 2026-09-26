@@ -12,5 +12,7 @@ export const SITE = {
   github: 'https://github.com/himeshsoni704',
   linkedin: 'https://ae.linkedin.com/in/himesh-soni-994326310',
   instagram: 'https://www.instagram.com/hx.cr3',
+  phone: '0567028156',
+  phoneIntl: '+971567028156',
   location: 'Dubai, UAE',
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Monitor, Mail, Github, Linkedin, Instagram, Volume2, VolumeX } from 'lucide-react';
+import { Sun, Moon, Monitor, Mail, Phone, Github, Linkedin, Instagram, Volume2, VolumeX } from 'lucide-react';
 import { isSoundOn, setSoundOn } from '../win/sounds';
 import { useWinMgr } from './WinManager';
 import { AppIcon } from '../win/icons';
@@ -305,6 +305,7 @@ export function ResumeApp() {
 export function ContactApp() {
   const links = [
     { id: 'email', icon: Mail, label: 'Email', value: SITE.email, href: `mailto:${SITE.email}` },
+    { id: 'phone', icon: Phone, label: 'Phone', value: SITE.phone, href: `tel:${SITE.phoneIntl}` },
     { id: 'github', icon: Github, label: 'GitHub', value: 'github.com/himeshsoni704', href: SITE.github },
     { id: 'linkedin', icon: Linkedin, label: 'LinkedIn', value: 'Himesh Soni', href: SITE.linkedin },
     { id: 'instagram', icon: Instagram, label: 'Photography', value: '@hx.cr3', href: SITE.instagram },

@@ -26,12 +26,17 @@ export default function SpaceTransition({
   const blocked = useRef(blockedInitially);
 
   useEffect(() => {
+    let lastY = window.scrollY;
     const onScroll = () => {
       const el = ref.current;
       if (!el || fired.current) return;
+      const y = window.scrollY;
+      const dy = y - lastY;
+      lastY = y;
       const rect = el.getBoundingClientRect();
-      // re-arm once the whole act is back below the viewport
-      if (blocked.current && rect.top > window.innerHeight) blocked.current = false;
+      // re-arm ONLY on an upward scroll that takes the user fully above
+      // the act — never while scrolling down through/past it
+      if (blocked.current && dy < 0 && rect.top > window.innerHeight) blocked.current = false;
       const total = rect.height - window.innerHeight;
       const v = Math.min(Math.max(-rect.top / Math.max(total, 1), 0), 1);
       progress.current = v;

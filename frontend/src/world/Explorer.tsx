@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, ArrowUp, LayoutGrid, List, Image as ImageIcon, Play } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUp, LayoutGrid, List, Image as ImageIcon, Play, Search } from 'lucide-react';
 import { useWinMgr } from './WinManager';
 import { FS_ROOT, findNode, pathTo, imagesOf, type FSNode } from './fs';
 import { AppIcon } from '../win/icons';
@@ -15,8 +15,33 @@ import { ResumeApp, ContactApp } from './apps';
 
 // ─────────────────────────────────────────────────────────────
 // EXPLORER — a working file-system explorer: back / forward /
-// up, breadcrumb, view switcher, double-click to open.
+// up, breadcrumb, live search, view switcher, double-click to
+// open, win7-style details pane.
 // ─────────────────────────────────────────────────────────────
+
+// win7-style manila folder icon (original SVG)
+function WinFolder({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 40" className={className} aria-hidden="true">
+      <path d="M2 6c0-1.7 1.3-3 3-3h12l4 5h22c1.7 0 3 1.3 3 3v4H2V6z" fill="#E0A93E" />
+      <path d="M3.2 12h41.6c1.8 0 3.1 1.6 2.9 3.3l-2 16.5c-.2 1.6-1.5 2.7-3.1 2.7H5.4c-1.6 0-2.9-1.1-3.1-2.7l-2-16.5C.1 13.6 1.4 12 3.2 12z" fill="#F7CE68" />
+      <path d="M4 13.5h40l-.8 3.4H4.8z" fill="rgba(255,255,255,0.5)" />
+    </svg>
+  );
+}
+
+// real, data-backed detail note (no fabricated sizes/dates)
+function detailNote(n: FSNode): string {
+  if (n.type === 'folder' && n.children) return ` · ${n.children.length} ITEM${n.children.length === 1 ? '' : 'S'} INSIDE`;
+  if (n.type === 'project' && n.projectId) {
+    const p = PROJECTS.find((x) => x.id === n.projectId);
+    return p ? ` · ${p.status.toUpperCase()}` : '';
+  }
+  if (n.type === 'research') return ' · ONGOING';
+  if (n.type === 'app') return n.appId === 'resume' ? ' · LIVE DOCUMENT' : ' · REAL LINKS';
+  if (n.type === 'image') return ' · OPEN WITH PHOTO VIEWER';
+  return '';
+}
 
 type View = 'icons' | 'details' | 'thumbs';
 
@@ -26,16 +51,19 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
   const [idx, setIdx] = useState(0);
   const [view, setView] = useState<View>(startNodeId === 'pictures' ? 'thumbs' : 'icons');
   const [selected, setSelected] = useState<string | null>(null);
+  const [q, setQ] = useState('');
 
   const node = findNode(FS_ROOT, stack[idx]) ?? FS_ROOT;
   const path = pathTo(FS_ROOT, stack[idx]);
-  const items = node.children ?? [];
+  const items = (node.children ?? []).filter((n) => n.name.toLowerCase().includes(q.trim().toLowerCase()));
+  const sel = items.find((n) => n.id === selected) ?? null;
 
   const navigate = (id: string) => {
     const next = [...stack.slice(0, idx + 1), id];
     setStack(next);
     setIdx(next.length - 1);
     setSelected(null);
+    setQ('');
   };
 
   const openNode = (n: FSNode) => {
@@ -123,6 +151,18 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
             </span>
           )}
         </div>
+        {/* search — win7 style, filters the current folder live */}
+        <div className={`flex h-8 w-24 shrink-0 items-center gap-1.5 rounded-md border px-2 sm:w-36 ${mgr.night ? 'border-[#67C3EA]/25 bg-[#0A1B2E]/80' : 'border-[#B7D5EC] bg-white/90'}`}>
+          <Search className={`h-3.5 w-3.5 shrink-0 ${mgr.night ? 'text-[#6E93B5]' : 'text-[#7FA5C4]'}`} />
+          <input
+            data-testid={`explorer-search-${startNodeId}`}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search"
+            aria-label="Search this folder"
+            className={`w-full bg-transparent text-[11.5px] outline-none ${mgr.night ? 'text-[#D8EAF8] placeholder:text-[#6E93B5]' : 'text-[#173A5E] placeholder:text-[#7FA5C4]'}`}
+          />
+        </div>
         <div className="flex items-center gap-1">
           <ViewBtn active={view === 'icons'} onClick={() => setView('icons')} label="Icons view" night={mgr.night}>
             <LayoutGrid className="h-3.5 w-3.5" />
@@ -178,6 +218,8 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
               >
                 {n.type === 'image' && n.src ? (
                   <img src={n.src} alt={n.alt} loading="lazy" className={`w-full rounded-md object-cover shadow-sm ${view === 'thumbs' ? 'aspect-[4/3]' : 'aspect-square'}`} />
+                ) : iconFor(n) === 'folder' ? (
+                  <WinFolder className={`${view === 'thumbs' ? 'h-20 w-24' : 'h-14 w-16'} drop-shadow-sm`} />
                 ) : (
                   <AppIcon name={iconFor(n)} className={view === 'thumbs' ? 'h-20 w-20' : 'h-14 w-14'} />
                 )}
@@ -208,7 +250,7 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
                   >
                     <td className={`px-3 py-2 font-medium ${mgr.night ? 'text-[#D8EAF8]' : 'text-[#25384C]'}`}>
                       <span className="flex items-center gap-2">
-                        <AppIcon name={iconFor(n)} className="h-5 w-5" />
+                        {iconFor(n) === 'folder' ? <WinFolder className="h-5 w-6" /> : <AppIcon name={iconFor(n)} className="h-5 w-5" />}
                         {n.name}
                       </span>
                     </td>
@@ -221,9 +263,38 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
         )}
       </div>
 
+      {/* details pane — win7 style, real data only */}
+      <div
+        className={`shrink-0 border-t px-3 py-2 ${mgr.night ? 'border-[#67C3EA]/20 bg-[#0A1B2E]/70' : 'border-[#CFE3F4] bg-[#F5FAFE]/90'}`}
+        data-testid={`explorer-details-pane-${startNodeId}`}
+      >
+        {sel ? (
+          <div className="flex items-center gap-3">
+            {sel.type === 'image' && sel.src ? (
+              <img src={sel.src} alt="" className="h-10 w-10 rounded-md object-cover" />
+            ) : iconFor(sel) === 'folder' ? (
+              <WinFolder className="h-10 w-12" />
+            ) : (
+              <AppIcon name={iconFor(sel)} className="h-10 w-10" />
+            )}
+            <div className="min-w-0">
+              <p className={`truncate text-[12.5px] font-semibold ${mgr.night ? 'text-[#D8EAF8]' : 'text-[#173A5E]'}`}>{sel.name}</p>
+              <p className={`truncate font-mono text-[9px] tracking-[0.18em] ${mgr.night ? 'text-[#6E93B5]' : 'text-[#7FA5C4]'}`}>
+                {(sel.kind ?? 'FOLDER').toUpperCase()}
+                {detailNote(sel)}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className={`font-mono text-[9px] tracking-[0.2em] ${mgr.night ? 'text-[#6E93B5]' : 'text-[#7FA5C4]'}`}>
+            SELECT_AN_ITEM_TO_SEE_DETAILS
+          </p>
+        )}
+      </div>
+
       {/* status bar */}
       <div className={`flex items-center justify-between border-t px-3 py-1.5 font-mono text-[9px] tracking-[0.2em] ${mgr.night ? 'border-[#67C3EA]/20 text-[#6E93B5]' : 'border-[#CFE3F4] text-[#7FA5C4]'}`}>
-        <span>{items.length} ITEMS</span>
+        <span>{items.length} ITEM{items.length === 1 ? '' : 'S'}{q.trim() ? ' (FILTERED)' : ''}</span>
         <span>DOUBLE-CLICK TO OPEN</span>
       </div>
     </div>
@@ -237,8 +308,10 @@ function NavBtn({ children, label, testid, disabled, onClick, night }: { childre
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className={`grid h-8 w-8 shrink-0 place-items-center rounded-md border transition-all active:scale-95 disabled:opacity-35 ${
-        night ? 'border-[#67C3EA]/25 bg-[#16304F]/80 text-[#BBDFF7] hover:bg-[#22436B]' : 'border-[#B7D5EC] bg-gradient-to-b from-white/90 to-[#D6ECFC]/70 text-[#33608A] hover:from-white'
+      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-all active:scale-90 disabled:opacity-35 ${
+        night
+          ? 'border-[#67C3EA]/25 bg-[#16304F]/80 text-[#BBDFF7] hover:bg-[#22436B]'
+          : 'border-[#9CC4E4] bg-gradient-to-b from-[#F2FAFF] to-[#C4E0F6] text-[#1B5E9E] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_1px_3px_rgba(20,80,140,0.3)] hover:from-white hover:to-white'
       }`}
     >
       {children}

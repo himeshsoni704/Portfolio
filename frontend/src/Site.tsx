@@ -3,6 +3,7 @@ import Hero from './sections/Hero';
 import Interests from './sections/Interests';
 import Exploring from './sections/Exploring';
 import SpaceTransition from './sections/SpaceTransition';
+import EndSection from './sections/EndSection';
 import World2 from './world/World2';
 import RockyChat from './win/RockyChat';
 
@@ -31,7 +32,10 @@ export default function Site() {
         <Interests />
         <Exploring />
         {!world2 && (
-          <SpaceTransition onEnterComputer={() => setWorld2(true)} blockedInitially={exitedRef.current} />
+          <>
+            <SpaceTransition onEnterComputer={() => setWorld2(true)} blockedInitially={exitedRef.current} />
+            <EndSection onReopen={() => setWorld2(true)} />
+          </>
         )}
       </main>
       {!world2 && <RockyChat />}
