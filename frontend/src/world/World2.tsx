@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Volume2, Wifi, LogOut, Search, Settings as SettingsIcon, Monitor } from 'lucide-react';
+import { Sun, Moon, Volume2, VolumeX, Wifi, LogOut, Search, Settings as SettingsIcon, Monitor } from 'lucide-react';
 import { WinManagerProvider, useWinMgr } from './WinManager';
+import { isSoundOn, setSoundOn, playStartup, playLogout } from '../win/sounds';
 import Explorer, { ProjectFileApp, ResearchLab, ExperimentApp, PhotoViewerApp, MediaPlayerApp } from './Explorer';
 import { TimelineApp, SkillsApp, SettingsApp } from './apps';
 import { ResumeApp, ContactApp } from './apps';
@@ -24,6 +25,7 @@ export default function World2({ onExit }: { onExit: () => void }) {
   const [phase, setPhase] = useState<Phase>('boot');
 
   useEffect(() => {
+    playStartup(); // Vista-style startup chime (respects the sound toggle)
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -39,6 +41,7 @@ export default function World2({ onExit }: { onExit: () => void }) {
   // the world right where the computer entrance is.
   const exit = () => {
     if (phase === 'logout') return;
+    playLogout(); // Vista-style logout chime (respects the sound toggle)
     setPhase('logout');
     window.setTimeout(() => onExit(), 2000);
   };
@@ -91,7 +94,14 @@ function Desktop({
   const [startOpen, setStartOpen] = useState(false);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [sound, setSound] = useState<boolean>(isSoundOn());
   const mobile = window.innerWidth < 768;
+
+  useEffect(() => {
+    const sync = () => setSound(isSoundOn());
+    window.addEventListener('himeshos-sound-change', sync);
+    return () => window.removeEventListener('himeshos-sound-change', sync);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -301,7 +311,22 @@ function Desktop({
 
         {/* tray */}
         <div className="flex shrink-0 items-center gap-3 border-l border-white/20 pl-3 pr-2" data-testid="world2-tray">
-          <Volume2 className="h-4 w-4 text-white/85" aria-label="Volume" />
+          <button
+            data-testid="sound-toggle"
+            aria-label={sound ? 'Mute system sounds' : 'Unmute system sounds'}
+            title={sound ? 'Mute system sounds' : 'Unmute system sounds'}
+            onClick={(e) => {
+              e.stopPropagation();
+              const n = !sound;
+              setSound(n);
+              setSoundOn(n);
+            }}
+            className={`grid h-8 w-8 place-items-center rounded-full border transition-all active:scale-90 ${
+              sound ? 'border-white/50 bg-white/15 text-white hover:bg-white/25' : 'border-[#E8A9A0]/60 bg-[#3A1D1D]/60 text-[#F0B5AC]'
+            }`}
+          >
+            {sound ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </button>
           <Wifi className="h-4 w-4 text-white/85" aria-label="Network" />
           <button
             data-testid="night-toggle"

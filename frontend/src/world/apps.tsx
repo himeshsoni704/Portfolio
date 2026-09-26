@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Sun, Moon, Monitor, Mail, Github, Linkedin, Instagram } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sun, Moon, Monitor, Mail, Github, Linkedin, Instagram, Volume2, VolumeX } from 'lucide-react';
+import { isSoundOn, setSoundOn } from '../win/sounds';
 import { useWinMgr } from './WinManager';
 import { AppIcon } from '../win/icons';
 import { MonoLabel, Chip } from '../win/ui';
@@ -113,6 +114,13 @@ export function SettingsApp() {
   const [motion, setMotion] = useState<'full' | 'reduced'>(
     document.documentElement.getAttribute('data-motion') === 'reduced' ? 'reduced' : 'full'
   );
+  const [sound, setSound] = useState<boolean>(isSoundOn());
+
+  useEffect(() => {
+    const sync = () => setSound(isSoundOn());
+    window.addEventListener('himeshos-sound-change', sync);
+    return () => window.removeEventListener('himeshos-sound-change', sync);
+  }, []);
 
   const applyMotion = (m: 'full' | 'reduced') => {
     setMotion(m);
@@ -164,6 +172,34 @@ export function SettingsApp() {
             icon={<Monitor className="h-5 w-5 opacity-60" />}
             title="Reduced"
             note="Calmer transitions"
+          />
+        </div>
+      </div>
+
+      <div className="mt-7">
+        <MonoLabel>SYSTEM SOUNDS</MonoLabel>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <ModeCard
+            active={sound}
+            onClick={() => {
+              setSound(true);
+              setSoundOn(true);
+            }}
+            testid="settings-sound-on"
+            icon={<Volume2 className="h-5 w-5" />}
+            title="On"
+            note="Startup + logout chimes play"
+          />
+          <ModeCard
+            active={!sound}
+            onClick={() => {
+              setSound(false);
+              setSoundOn(false);
+            }}
+            testid="settings-sound-off"
+            icon={<VolumeX className="h-5 w-5" />}
+            title="Off"
+            note="Silent computer"
           />
         </div>
       </div>

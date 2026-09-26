@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // ─────────────────────────────────────────────────────────────
 // SPACE SCENE — the cinematic core. Stars, nebulae, a glossy
@@ -160,8 +161,10 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     ship.add(body, cockpit, wingL, wingR, engine);
     world.add(ship);
 
-    // ── ROCKY — glossy rock with eyes + waving arm ──
+    // ── ROCKY — the real printable Rocky model (GLB from Himesh's STL),
+    // with the procedural rock kept as an automatic fallback ──
     const rocky = new THREE.Group();
+    const fallback = new THREE.Group();
     const rockGeo = new THREE.IcosahedronGeometry(0.6, 1);
     const rp = rockGeo.attributes.position;
     for (let i = 0; i < rp.count; i++) {
@@ -169,7 +172,7 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
       rp.setXYZ(i, rp.getX(i) * j, rp.getY(i) * j, rp.getZ(i) * j);
     }
     rockGeo.computeVertexNormals();
-    rocky.add(
+    fallback.add(
       new THREE.Mesh(
         rockGeo,
         new THREE.MeshPhysicalMaterial({ color: 0xd7e3ef, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.25 })
@@ -189,7 +192,31 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.36, 6, 12), new THREE.MeshPhysicalMaterial({ color: 0xc3d2e3, roughness: 0.3, clearcoat: 0.9 }));
     arm.position.set(0.6, 0.3, 0.05);
     arm.rotation.z = -0.9;
-    rocky.add(eyeL, eyeR, glintL, glintR, arm);
+    fallback.add(eyeL, eyeR, glintL, glintR, arm);
+    rocky.add(fallback);
+
+    // the real model — swaps in over the fallback once loaded
+    new GLTFLoader().load(
+      '/models/rocky.glb',
+      (gltf) => {
+        const model = gltf.scene;
+        const stone = new THREE.MeshPhysicalMaterial({ color: 0xd6e2ef, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.4 });
+        model.traverse((o) => {
+          if (o instanceof THREE.Mesh) o.material = stone;
+        });
+        const box = new THREE.Box3().setFromObject(model);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const scale = 1.55 / Math.max(size.x, size.y, size.z, 0.0001);
+        model.scale.setScalar(scale);
+        rocky.add(model);
+        fallback.visible = false;
+      },
+      undefined,
+      () => {
+        // load failed — the procedural Rocky stays visible
+      }
+    );
     world.add(rocky);
     const rockyLight = new THREE.PointLight(0xbfe3ff, 1.4, 8);
     rockyLight.position.set(1.5, 2, 3);
@@ -263,15 +290,15 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
         engine.material.opacity = 0.5 + Math.sin(t * 18) * 0.2;
 
         // rocky enters midway, floats, looks at viewer, waves — then drifts
-        // over to the computer and turns toward it
+        // over beside the computer and turns toward it
         const rIn = Math.min(Math.max((p - 0.38) / 0.25, 0), 1);
         const rTo = Math.min(Math.max((p - 0.7) / 0.3, 0), 1);
         rocky.position.set(
-          6.5 - rIn * 6.2 + rTo * 2.1,
-          -1.6 + Math.sin(t * 0.9) * 0.22 + rIn * 0.8 + rTo * 0.55,
-          3.4 - rTo * 1.4
+          6.5 - rIn * 6.2 + rTo * 1.5,
+          -1.6 + Math.sin(t * 0.9) * 0.22 + rIn * 0.8 + rTo * 0.75,
+          3.4 - rTo * 1.2
         );
-        rocky.rotation.y += ((rTo > 0.4 ? 0.55 : -0.3 + pointer.x * 0.25) - rocky.rotation.y) * 0.06;
+        rocky.rotation.y += ((rTo > 0.4 ? 0.35 : -0.3 + pointer.x * 0.25) - rocky.rotation.y) * 0.06;
         rocky.rotation.x += ((pointer.y * 0.15) - rocky.rotation.x) * 0.06;
         const waveP = p > 0.45 && p < 0.78 ? Math.sin(t * 5) * 0.5 : 0;
         arm.rotation.z = -0.9 + waveP;
