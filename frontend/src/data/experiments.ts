@@ -1,53 +1,53 @@
 // ───────────────────────────────────────────────────────────
-// EXPERIMENTS — smaller things made while curious.
-// Links go to Himesh's real GitHub profile (repos TBD by him).
+// EXPERIMENTS — things made because of curiosity. Data-driven:
+// add a new entry here and it appears in the Experiments app.
 // ───────────────────────────────────────────────────────────
 
 export type Experiment = {
+  id: string;
   title: string;
-  category: string;
   description: string;
-  link: string | null;
-  tag?: string;
+  type: string;
+  status: 'EXPERIMENT';
+  opens?: 'pixelator' | 'bottle';
 };
 
 export const EXPERIMENTS: Experiment[] = [
   {
+    id: 'pixelator',
     title: 'Pixelator',
-    category: 'Creative Coding',
-    description: 'Live pixelation playground. The full demo lives right here on this site.',
-    link: '/work/pixelator',
-    tag: 'SANDBOX BELOW',
+    description: 'Small image-processing experiment.',
+    type: 'Image Processing',
+    status: 'EXPERIMENT',
+    opens: 'pixelator',
   },
   {
+    id: 'water-bottle-simulation',
     title: 'Water Bottle Simulation',
-    category: 'Physics',
-    description: '2D bottle-tilting fluid experiment. Also live on this site — go tilt it.',
-    link: '/work/water-bottle-simulation',
-    tag: 'SANDBOX BELOW',
+    description: 'Small simulation/visual experiment involving water movement.',
+    type: 'Simulation',
+    status: 'EXPERIMENT',
+    opens: 'bottle',
   },
   {
-    title: 'Local LLM / RAG Experiments',
-    category: 'AI / LLMs',
-    description: 'Running local models, wiring up retrieval, and teaching a machine to cite its sources.',
-    link: 'https://github.com/himeshsoni704',
+    id: 'local-ai-rag',
+    title: 'Local AI / RAG Experiments',
+    description: 'Experiments involving local AI models, RAG and terminal interaction.',
+    type: 'AI / LLMs',
+    status: 'EXPERIMENT',
   },
   {
-    title: 'Computer Vision Playground',
-    category: 'Computer Vision',
-    description: 'Small experiments in detection, tracking and image understanding.',
-    link: 'https://github.com/himeshsoni704',
+    id: 'cv-experiments',
+    title: 'Computer Vision Experiments',
+    description: 'Small CV/image-processing experiments.',
+    type: 'Computer Vision',
+    status: 'EXPERIMENT',
   },
   {
-    title: 'ML Micro-Experiments',
-    category: 'Machine Learning',
-    description: 'Tiny models on tiny datasets — fast feedback loops for understanding fundamentals.',
-    link: 'https://github.com/himeshsoni704',
-  },
-  {
-    title: 'Prototypes & Odd Jobs',
-    category: 'Software',
-    description: 'The grab-bag drawer: utilities, scrapped ideas and things built in one sitting.',
-    link: 'https://github.com/himeshsoni704',
+    id: 'creative-coding',
+    title: 'Creative Coding',
+    description: 'Small visual and interactive experiments.',
+    type: 'Creative Coding',
+    status: 'EXPERIMENT',
   },
 ];
