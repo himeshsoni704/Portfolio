@@ -143,13 +143,13 @@ export function WinManagerProvider({
 function frameStyle(night: boolean): React.CSSProperties {
   return {
     background: night
-      ? 'linear-gradient(180deg, rgba(120,175,220,0.20) 0%, rgba(40,80,130,0.26) 7%, rgba(14,34,60,0.40) 55%, rgba(6,18,36,0.46) 100%)'
-      : 'linear-gradient(180deg, rgba(242,250,255,0.78) 0%, rgba(202,230,250,0.68) 7%, rgba(172,212,242,0.60) 58%, rgba(158,202,236,0.66) 100%)',
+      ? 'linear-gradient(180deg, rgba(110,170,220,0.16) 0%, rgba(36,76,126,0.24) 6%, rgba(12,30,56,0.42) 55%, rgba(5,16,34,0.5) 100%)'
+      : 'linear-gradient(180deg, rgba(248,252,255,0.6) 0%, rgba(198,228,250,0.48) 6%, rgba(158,200,236,0.42) 58%, rgba(146,192,230,0.5) 100%)',
     boxShadow: night
-      ? 'inset 0 0 0 1px rgba(160,215,250,0.28), 0 40px 100px rgba(2,20,45,0.6)'
-      : 'inset 0 0 0 1px rgba(255,255,255,0.55), 0 40px 100px rgba(2,20,45,0.55)',
-    backdropFilter: 'blur(22px) saturate(1.5)',
-    WebkitBackdropFilter: 'blur(22px) saturate(1.5)',
+      ? 'inset 0 0 0 1px rgba(160,215,250,0.3), inset 0 0 30px rgba(120,190,250,0.12), 0 50px 110px rgba(2,20,45,0.65)'
+      : 'inset 0 0 0 1px rgba(255,255,255,0.65), inset 0 0 30px rgba(255,255,255,0.3), 0 50px 110px rgba(2,20,45,0.6)',
+    backdropFilter: 'blur(28px) saturate(1.7)',
+    WebkitBackdropFilter: 'blur(28px) saturate(1.7)',
   } as React.CSSProperties;
 }
 
@@ -218,8 +218,8 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
       </div>
 
       <div
-        className={`aero-body relative mx-1.5 mb-1.5 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[8px] border ${
-          night ? 'aero-body-night border-[#67C3EA]/25' : 'border-white/80 bg-[#F7FBFF] text-[#25384C]'
+        className={`aero-body relative mx-2 mb-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[9px] border ${
+          night ? 'aero-body-night border-[#67C3EA]/25' : 'border-white/85 bg-[#F7FBFF] text-[#25384C]'
         }`}
       >
         {win.render()}

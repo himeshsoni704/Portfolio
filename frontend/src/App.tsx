@@ -1,23 +1,12 @@
-import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { Toaster } from 'sonner';
-import BootScreen, { LoginScreen } from './BootLogin';
 import Site from './Site';
+import { Toaster } from './components/ui/sonner';
 
-type Phase = 'boot' | 'login' | 'site';
-
+// The portfolio opens straight into the world — no boot, no login.
+// The Vista boot + Win7 login belong to the computer (World 2).
 export default function App() {
-  // The portfolio starts at the login screen — the "Starting..." boot screen
-  // belongs to the computer (World 2) only.
-  const [phase, setPhase] = useState<Phase>('login');
-
   return (
     <>
-      <AnimatePresence mode="wait">
-        {phase === 'boot' && <BootScreen key="boot" onDone={() => setPhase('login')} />}
-        {phase === 'login' && <LoginScreen key="login" onEnter={() => setPhase('site')} />}
-        {phase === 'site' && <Site key="site" />}
-      </AnimatePresence>
+      <Site />
       <Toaster position="bottom-center" theme="light" />
     </>
   );

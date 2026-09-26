@@ -195,15 +195,11 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     fallback.add(eyeL, eyeR, glintL, glintR, arm);
     rocky.add(fallback);
 
-    // the real model — swaps in over the fallback once loaded
+    // the real model — Himesh's Rocky (textured), swaps in over the fallback
     new GLTFLoader().load(
       '/models/rocky.glb',
       (gltf) => {
         const model = gltf.scene;
-        const stone = new THREE.MeshPhysicalMaterial({ color: 0xd6e2ef, roughness: 0.42, clearcoat: 0.6, clearcoatRoughness: 0.4 });
-        model.traverse((o) => {
-          if (o instanceof THREE.Mesh) o.material = stone;
-        });
         const box = new THREE.Box3().setFromObject(model);
         const size = new THREE.Vector3();
         box.getSize(size);
@@ -218,9 +214,12 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
       }
     );
     world.add(rocky);
-    const rockyLight = new THREE.PointLight(0xbfe3ff, 1.4, 8);
-    rockyLight.position.set(1.5, 2, 3);
+    const rockyLight = new THREE.PointLight(0xdceeff, 2.6, 14);
+    rockyLight.position.set(2.2, 2.6, 5.5);
     world.add(rockyLight);
+    const rockyFill = new THREE.PointLight(0xbfe3ff, 1.1, 10);
+    rockyFill.position.set(-1.5, -1.5, 5);
+    world.add(rockyFill);
 
     // ── THE COMPUTER — the destination. Reveals late in the act; Rocky
     // drifts over and turns toward it. ──
