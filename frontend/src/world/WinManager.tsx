@@ -144,7 +144,10 @@ function frameStyle(night: boolean): React.CSSProperties {
   return {
     background: night
       ? 'linear-gradient(180deg, rgba(120,175,220,0.20) 0%, rgba(40,80,130,0.26) 7%, rgba(14,34,60,0.40) 55%, rgba(6,18,36,0.46) 100%)'
-      : 'linear-gradient(180deg, rgba(240,250,255,0.66) 0%, rgba(196,226,248,0.55) 7%, rgba(165,205,238,0.46) 58%, rgba(150,195,230,0.5) 100%)',
+      : 'linear-gradient(180deg, rgba(242,250,255,0.78) 0%, rgba(202,230,250,0.68) 7%, rgba(172,212,242,0.60) 58%, rgba(158,202,236,0.66) 100%)',
+    boxShadow: night
+      ? 'inset 0 0 0 1px rgba(160,215,250,0.28), 0 40px 100px rgba(2,20,45,0.6)'
+      : 'inset 0 0 0 1px rgba(255,255,255,0.55), 0 40px 100px rgba(2,20,45,0.55)',
     backdropFilter: 'blur(22px) saturate(1.5)',
     WebkitBackdropFilter: 'blur(22px) saturate(1.5)',
   } as React.CSSProperties;
