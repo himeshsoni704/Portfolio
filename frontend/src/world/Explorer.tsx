@@ -57,8 +57,8 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
         id: `exp-${n.experimentId}`,
         title: n.name,
         icon: n.experimentId === 'pixelator' ? 'pixelator' : n.experimentId === 'water-bottle-simulation' ? 'bottle' : 'file',
-        w: n.experimentId === 'water-bottle-simulation' ? 540 : 560,
-        h: n.experimentId === 'water-bottle-simulation' ? 660 : 480,
+        w: n.experimentId === 'water-bottle-simulation' ? 540 : n.experimentId === 'pixelator' ? 760 : 560,
+        h: n.experimentId === 'water-bottle-simulation' ? 660 : n.experimentId === 'pixelator' ? 640 : 480,
         render: () => <ExperimentApp experimentId={n.experimentId!} />,
       });
     if (n.type === 'image') {
@@ -291,7 +291,7 @@ export function ProjectFileApp({ projectId }: { projectId: string }) {
           data-testid={`open-project-${p.id}`}
           onClick={() =>
             p.special === 'pixelator'
-              ? mgr.open({ id: 'pixelator-app', title: 'Pixelator', icon: 'pixelator', w: 560, h: 520, render: () => <PixelatorApp /> })
+              ? mgr.open({ id: 'pixelator-app', title: 'Pixelator', icon: 'pixelator', w: 760, h: 640, render: () => <PixelatorApp /> })
               : p.github
                 ? window.open(p.github, '_blank')
                 : toast('No public link yet — [ADD PROJECT LINK]')

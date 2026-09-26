@@ -12,6 +12,8 @@ from typing import List
 import uuid
 from datetime import datetime, timezone
 
+from pixelator import router as pixelator_router
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -67,7 +69,7 @@ PROJECTS (things he built):
 - RoadPulse: a fully functional, AI-powered smart city road incident reporting platform.
 - FinTeach: a tool related to bank security. Private — no public repo.
 - Indoor RF Simulator: an indoor radio-frequency simulator. Public repo: indoor_rf_simulator.
-- Pixelator: an image pixelating application. Its real JavaScript codebase will be integrated into this portfolio as a working app soon.
+- Pixelator: an image pixelating application by Himesh. It actually runs as a real app inside this portfolio — upload an image, pick grid sampling or organic SLIC segmentation, auto-extract a palette or choose custom colors.
 - TerminalAI: a local Linux terminal AI bot, exploring local AI assisting with Linux terminal commands.
 - CogMap: description coming soon. Himesh has not told me yet.
 - ESP32 CSI Motion Radar: hardware/sensing project using ESP32 and Wi-Fi Channel State Information for motion detection. Ongoing. No performance results claimed.
@@ -118,7 +120,7 @@ DEMO_KB = [
     (r"crypto|arbitrag", "Crypto Arbitrager — a crypto arbitrage project. I know exactly that much. No profit claims from me."),
     (r"einvoic|e-invoic|invoice|compliance", "UAE e-Invoicing Gap Analyzer — AI-assisted analysis of invoice data against UAE e-invoicing requirements. FastAPI, PHP REST API, MySQL, CSV/Excel/XML, field mapping, validation, compliance analysis. Ongoing."),
     (r"letter of credit|lc automation|ocr", "Letter of Credit Automation — document processing: OCR/extraction, structured information, validation, discrepancy detection, workflow automation. Ongoing. Honest about being unfinished."),
-    (r"pixelator|pixel", "An image pixelating application. Made because he was curious. Its real JavaScript codebase will run inside this portfolio soon — a real app, not a demo. Amaze."),
+    (r"pixelator|pixel", "An image pixelating application. Made because he was curious. It runs as a real app inside this portfolio — upload an image and pixelate it. A real app, not a demo. Amaze."),
     (r"water bottle|bottle|simulation", "A small simulation/visual experiment involving water movement. There's a working 2D version in the Experiments app — go tilt it."),
     (r"photograph|photo|camera|film|cinema|reflexions|filmmak|videograph", "He enjoys experimenting with cameras, photography and filmmaking — involved with the Reflexions Photography & Videography Club at BITS Dubai. He is NOT a videographer. His words."),
     (r"skill|stack|language|python|tools", "Programming: Python, Java, C/C++, JavaScript/TypeScript. AI/ML: ML, DL, Computer Vision, LLMs, RAG. Software: React, FastAPI, Flask, MySQL, Git, Linux. Quantum: Qiskit, Quantum Simulation, QKD. Creative: Photography, Filmmaking, DaVinci Resolve, Spline, Creative Coding."),
@@ -222,6 +224,7 @@ async def get_status_checks():
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     return status_checks
 
+api_router.include_router(pixelator_router)
 app.include_router(api_router)
 
 app.add_middleware(

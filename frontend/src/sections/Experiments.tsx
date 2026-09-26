@@ -14,7 +14,7 @@ export default function Experiments() {
 
   const openExperiment = (e: Experiment) => {
     if (e.opens === 'pixelator') {
-      open({ id: 'pixelator-app', title: 'Pixelator', icon: 'pixelator', width: 560, render: () => <PixelatorApp /> });
+      open({ id: 'pixelator-app', title: 'Pixelator', icon: 'pixelator', width: 720, render: () => <PixelatorApp /> });
       return;
     }
     if (e.opens === 'bottle') {

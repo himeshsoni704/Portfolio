@@ -27,7 +27,7 @@ export const ROCKY_KNOWLEDGE = {
     { name: 'RoadPulse', summary: 'A fully functional, AI-powered smart city road incident reporting platform.' },
     { name: 'FinTeach', summary: 'A tool related to bank security. Private project.' },
     { name: 'Indoor RF Simulator', summary: 'An indoor radio-frequency simulator. Public repo: indoor_rf_simulator.' },
-    { name: 'Pixelator', summary: 'An image pixelating application. Its JavaScript codebase will be integrated as a real app in this portfolio soon.' },
+    { name: 'Pixelator', summary: 'An image pixelating application. It runs as a real app inside this portfolio — upload an image, pick grid or SLIC sampling, and pixelate it.' },
     { name: 'TerminalAI', summary: 'A local Linux terminal AI bot exploring local AI assisting with Linux terminal commands.' },
     { name: 'CogMap', summary: 'Description coming soon. Himesh has not told me yet.' },
     { name: 'ESP32 CSI Motion Radar', summary: 'Hardware/sensing project using ESP32 and Wi-Fi Channel State Information for motion detection. Ongoing.' },

@@ -17,7 +17,7 @@ export default function Projects() {
         id: 'pixelator-app',
         title: 'Pixelator',
         icon: 'pixelator',
-        width: 560,
+        width: 720,
         render: () => <PixelatorApp />,
       });
       return;

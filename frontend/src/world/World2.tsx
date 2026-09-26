@@ -7,6 +7,7 @@ import { TimelineApp, SkillsApp, SettingsApp } from './apps';
 import { AppIcon, type IconKey } from '../win/icons';
 import RockyChat from '../win/RockyChat';
 import { PHOTOS, FILM } from '../data/photography';
+import PixelatorApp from '../sections/PixelatorApp';
 
 // ─────────────────────────────────────────────────────────────
 // WORLD 2 — Himesh's computer. A Windows 7 / Frutiger Aero
@@ -53,6 +54,7 @@ const DESKTOP_ICONS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'built', label: "Things I've Built", icon: 'folder' },
   { id: 'investigating', label: "Things I'm Investigating", icon: 'research' },
   { id: 'experiments', label: 'Experiments', icon: 'experiments' },
+  { id: 'pixelator', label: 'Pixelator', icon: 'pixelator' },
   { id: 'pictures', label: 'Pictures', icon: 'viewer' },
   { id: 'music', label: 'Music', icon: 'media' },
   { id: 'timeline', label: 'Timeline', icon: 'calendar' },
@@ -88,6 +90,7 @@ function Desktop({
   }, []);
 
   const openIcon = (id: string) => {
+    if (id === 'pixelator') return mgr.open({ id: 'pixelator', title: 'Pixelator', icon: 'pixelator', w: 760, h: 640, render: () => <PixelatorApp /> });
     if (id === 'timeline') return mgr.open({ id: 'timeline', title: 'Himesh Timeline', icon: 'calendar', w: 560, h: 560, render: () => <TimelineApp /> });
     if (id === 'skills') return mgr.open({ id: 'skills', title: 'Skills', icon: 'file', w: 640, h: 480, render: () => <SkillsApp /> });
     if (id === 'settings') return mgr.open({ id: 'settings', title: 'Settings', icon: 'about', w: 560, h: 540, render: () => <SettingsApp /> });
@@ -357,6 +360,7 @@ const START_APPS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'built', label: "Things I've Built", icon: 'folder' },
   { id: 'investigating', label: "Things I'm Investigating", icon: 'research' },
   { id: 'experiments', label: 'Experiments', icon: 'experiments' },
+  { id: 'pixelator', label: 'Pixelator', icon: 'pixelator' },
   { id: 'pictures', label: 'Pictures', icon: 'viewer' },
   { id: 'music', label: 'Music', icon: 'media' },
   { id: 'timeline', label: 'Himesh Timeline', icon: 'calendar' },
