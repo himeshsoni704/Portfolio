@@ -195,6 +195,27 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     rockyLight.position.set(1.5, 2, 3);
     world.add(rockyLight);
 
+    // ── THE COMPUTER — the destination. Reveals late in the act; Rocky
+    // drifts over and turns toward it. ──
+    const computer = new THREE.Group();
+    const caseMat = new THREE.MeshPhysicalMaterial({ color: 0x1c344e, roughness: 0.35, clearcoat: 0.8 });
+    const monitor = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.7, 0.16), caseMat);
+    const screenMat = new THREE.MeshBasicMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.3 });
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 1.4), screenMat);
+    screen.position.z = 0.09;
+    const stand = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.7, 0.16), caseMat);
+    stand.position.y = -1.15;
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.08, 0.5), caseMat);
+    base.position.y = -1.5;
+    computer.add(monitor, screen, stand, base);
+    computer.position.set(3.6, -0.55, 1.5);
+    computer.rotation.y = -0.35;
+    computer.scale.setScalar(0.001);
+    world.add(computer);
+    const screenGlow = new THREE.PointLight(0x7dd3fc, 0, 12);
+    screenGlow.position.set(3.6, -0.4, 3);
+    world.add(screenGlow);
+
     // ── sizing ──
     const resize = () => {
       const w = mount.clientWidth;
@@ -241,13 +262,26 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
         engineLight.intensity = 1.8 + Math.sin(t * 22) * 0.7;
         engine.material.opacity = 0.5 + Math.sin(t * 18) * 0.2;
 
-        // rocky enters midway, floats, looks at viewer, waves
+        // rocky enters midway, floats, looks at viewer, waves — then drifts
+        // over to the computer and turns toward it
         const rIn = Math.min(Math.max((p - 0.38) / 0.25, 0), 1);
-        rocky.position.set(6.5 - rIn * 6.2, -1.6 + Math.sin(t * 0.9) * 0.22 + rIn * 0.8, 3.4);
-        rocky.rotation.y += ((-0.3 + pointer.x * 0.25) - rocky.rotation.y) * 0.06;
+        const rTo = Math.min(Math.max((p - 0.7) / 0.3, 0), 1);
+        rocky.position.set(
+          6.5 - rIn * 6.2 + rTo * 2.1,
+          -1.6 + Math.sin(t * 0.9) * 0.22 + rIn * 0.8 + rTo * 0.55,
+          3.4 - rTo * 1.4
+        );
+        rocky.rotation.y += ((rTo > 0.4 ? 0.55 : -0.3 + pointer.x * 0.25) - rocky.rotation.y) * 0.06;
         rocky.rotation.x += ((pointer.y * 0.15) - rocky.rotation.x) * 0.06;
-        const waveP = p > 0.45 && p < 0.85 ? Math.sin(t * 5) * 0.5 : 0;
+        const waveP = p > 0.45 && p < 0.78 ? Math.sin(t * 5) * 0.5 : 0;
         arm.rotation.z = -0.9 + waveP;
+
+        // the computer reveals at the end of the act
+        const cIn = Math.min(Math.max((p - 0.74) / 0.18, 0), 1);
+        computer.scale.setScalar(0.001 + cIn * 0.999);
+        computer.position.y = -0.55 + Math.sin(t * 0.7) * 0.05;
+        screenMat.opacity = 0.2 + cIn * 0.65 + Math.sin(t * 2.2) * 0.06;
+        screenGlow.intensity = cIn * 2.4;
 
         planet.rotation.y = t * 0.02 + p * 0.6;
         moon.position.y = -2.6 + Math.sin(t * 0.3) * 0.3;

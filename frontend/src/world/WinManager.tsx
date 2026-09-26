@@ -139,6 +139,17 @@ export function WinManagerProvider({
   );
 }
 
+// authentic Vista window frame — translucent glass border + blur
+function frameStyle(night: boolean): React.CSSProperties {
+  return {
+    background: night
+      ? 'linear-gradient(180deg, rgba(120,175,220,0.20) 0%, rgba(40,80,130,0.26) 7%, rgba(14,34,60,0.40) 55%, rgba(6,18,36,0.46) 100%)'
+      : 'linear-gradient(180deg, rgba(240,250,255,0.66) 0%, rgba(196,226,248,0.55) 7%, rgba(165,205,238,0.46) 58%, rgba(150,195,230,0.5) 100%)',
+    backdropFilter: 'blur(22px) saturate(1.5)',
+    WebkitBackdropFilter: 'blur(22px) saturate(1.5)',
+  } as React.CSSProperties;
+}
+
 function AeroAppWindow({ win }: { win: WinInstance }) {
   const { focus, close, minimize, toggleMax, night } = useWinMgr();
   const reduced = useReducedMotion();
@@ -152,13 +163,13 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={reduced ? undefined : { opacity: 0, scale: 0.95, y: 12 }}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-      className={`aero-surface pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border shadow-[0_40px_90px_rgba(3,25,50,0.55)] ${
-        night ? 'aero-surface-night border-[#67C3EA]/30' : 'border-white/60'
+      className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-[12px] border shadow-[0_40px_100px_rgba(2,20,45,0.6)] ${
+        night ? 'border-[#67C3EA]/25' : 'border-white/55'
       }`}
       style={
         full
-          ? { left: 8, top: 8, right: 8, bottom: 66, zIndex: win.z }
-          : { left: pos.x, top: pos.y, width: win.w, height: win.h, zIndex: win.z }
+          ? { left: 8, top: 8, right: 8, bottom: 66, zIndex: win.z, ...frameStyle(night) }
+          : { left: pos.x, top: pos.y, width: win.w + 14, height: win.h + 14, zIndex: win.z, ...frameStyle(night) }
       }
       onPointerDown={() => focus(win.key)}
       role="dialog"
@@ -166,16 +177,14 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
       data-testid={`win2-${win.id}`}
     >
       <div
-        className={`aero-titlebar relative flex h-10 shrink-0 items-center justify-between border-b px-2.5 select-none ${
-          night
-            ? 'border-[#67C3EA]/25 bg-gradient-to-b from-[#1E3A5C]/95 to-[#122642]/92'
-            : 'border-white/60 bg-gradient-to-b from-[#D5ECFD]/95 to-[#ABD6F6]/85'
+        className={`relative flex h-10 shrink-0 items-center justify-between border-b px-2.5 select-none ${
+          night ? 'border-[#67C3EA]/20' : 'border-white/45'
         }`}
         style={{ cursor: full ? 'default' : 'grab' }}
         onPointerDown={startDrag}
         onDoubleClick={() => !mobile && toggleMax(win.key)}
       >
-        {!night && <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-xl bg-gradient-to-b from-white/75 to-transparent" aria-hidden="true" />}
+        {!night && <div className="pointer-events-none absolute inset-x-2 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-white/50 to-transparent" aria-hidden="true" />}
         <div className="relative flex items-center gap-2 pl-1">
           <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">
             <AppIcon name={win.icon} />
@@ -205,7 +214,11 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
         </div>
       </div>
 
-      <div className={`aero-body relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden ${night ? 'aero-body-night' : 'text-[#25384C]'}`}>
+      <div
+        className={`aero-body relative mx-1.5 mb-1.5 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[8px] border ${
+          night ? 'aero-body-night border-[#67C3EA]/25' : 'border-white/80 bg-[#F7FBFF] text-[#25384C]'
+        }`}
+      >
         {win.render()}
       </div>
     </motion.div>

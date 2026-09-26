@@ -11,6 +11,7 @@ import { EXPERIMENTS } from '../data/experiments';
 import PixelatorApp from '../sections/PixelatorApp';
 import BottleSim from '../components/BottleSim';
 import QKDDiagram from '../components/QKDDiagram';
+import { ResumeApp, ContactApp } from './apps';
 
 // ─────────────────────────────────────────────────────────────
 // EXPLORER — a working file-system explorer: back / forward /
@@ -39,6 +40,10 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
 
   const openNode = (n: FSNode) => {
     if (n.type === 'folder') return navigate(n.id);
+    if (n.type === 'app')
+      return n.appId === 'resume'
+        ? mgr.open({ id: 'resume', title: 'Resume — Himesh Soni', icon: 'file', w: 680, h: 600, render: () => <ResumeApp /> })
+        : mgr.open({ id: 'contact-app', title: 'Contact', icon: 'about', w: 620, h: 560, render: () => <ContactApp /> });
     if (n.type === 'project') {
       const p = PROJECTS.find((x) => x.id === n.projectId)!;
       return mgr.open({
@@ -71,17 +76,21 @@ export default function Explorer({ startNodeId }: { startNodeId: string }) {
   const iconFor = (n: FSNode) =>
     n.type === 'folder'
       ? 'folder'
-      : n.kind === 'Application'
-        ? 'pixelator'
-        : n.type === 'research'
-          ? 'research'
-          : n.type === 'experiment'
-            ? 'experiments'
-            : n.kind === 'Simulation'
-              ? 'bottle'
-              : n.type === 'image'
-                ? 'viewer'
-                : 'file';
+      : n.appId === 'contact'
+        ? 'about'
+        : n.appId === 'resume'
+          ? 'file'
+          : n.kind === 'Application'
+            ? 'pixelator'
+            : n.type === 'research'
+              ? 'research'
+              : n.type === 'experiment'
+                ? 'experiments'
+                : n.kind === 'Simulation'
+                  ? 'bottle'
+                  : n.type === 'image'
+                    ? 'viewer'
+                    : 'file';
 
   return (
     <div className="flex h-full flex-col" data-testid={`explorer-${startNodeId}`}>

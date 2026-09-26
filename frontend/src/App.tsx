@@ -7,7 +7,9 @@ import Site from './Site';
 type Phase = 'boot' | 'login' | 'site';
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>('boot');
+  // The portfolio starts at the login screen — the "Starting..." boot screen
+  // belongs to the computer (World 2) only.
+  const [phase, setPhase] = useState<Phase>('login');
 
   return (
     <>

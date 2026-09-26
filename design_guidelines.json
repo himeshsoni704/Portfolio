@@ -1,183 +1,64 @@
 {
-  "project_name": "Himesh Soni - Creative Tech Portfolio",
-  "archetype": "Modernized Frutiger Aero x Windows 7 UX x Deep Space Exploration",
-  "tagline": "I build things I'm curious about.",
-  "creator": {
-    "name": "Himesh Soni",
-    "role": "3rd-year CS Student @ BITS Pilani Dubai",
-    "focus_areas": [
-      "AI/ML Research",
-      "Quantum Computing (QKD)",
-      "Software Engineering",
-      "Creative Coding",
-      "Photography & Filmmaking"
-    ],
-    "social": {
-      "github": "https://github.com/himeshsoni",
-      "linkedin": "https://linkedin.com/in/himeshsoni",
-      "instagram": "https://instagram.com/hx.cr3",
-      "email": "himesh@example.com"
-    }
-  },
-  "design_philosophy": {
-    "core_concept": "What if a Windows 7-era Aero computer interface was redesigned as a futuristic orbital space station command desk?",
-    "emotional_tone": "Optimistic, exploratory, bright, tactile, intellectually curious, high-tech precise",
-    "anti_patterns_avoided": [
-      "Literal Windows 7 start-menu clone / retro taskbar bloat",
-      "Generic flat dark cyberpunk neon slop (#7351B7)",
-      "Standard centered Bootstrap single-column layout",
-      "Plain opaque card boxes with no depth",
-      "Static progress bars for skills"
-    ]
+  "project_name": "Himesh Soni - Interactive Portfolio World 1 & 2",
+  "theme": "Windows Vista Aero + Cosmic Space Hybrid (Dark/Aero Translucent)",
+  "emotional_archetype": "Architectural Precision + Dreamy Retro-Futurism",
+  "typography": {
+    "font_family_display": "Outfit, system-ui, sans-serif",
+    "font_family_body": "Inter, system-ui, sans-serif",
+    "font_family_mono": "Source Code Pro, monospace",
+    "headline_hero": "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md",
+    "section_title": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-cyan-200",
+    "subsection_heading": "text-xl sm:text-2xl font-medium text-slate-100",
+    "body": "text-base leading-relaxed text-slate-300",
+    "caption_label": "text-xs font-mono uppercase tracking-[0.2em] text-cyan-400/90"
   },
   "colors": {
-    "background_dark": "#050914",
-    "background_space_navy": "#0B132B",
-    "background_light_sky": "#E0F2FE",
-    "primary_cyan": "#06B6D4",
-    "primary_sky": "#38BDF8",
-    "primary_blue": "#2563EB",
-    "accent_emerald": "#10B981",
-    "accent_aurora": "#34D399",
+    "background_space": "#030712",
+    "accent_aero_cyan": "#38bdf8",
+    "accent_vista_blue": "#2563eb",
+    "accent_neon_emerald": "#10b981",
+    "accent_rocky_gold": "#f59e0b",
     "glass_bg_dark": "rgba(15, 23, 42, 0.65)",
-    "glass_bg_light": "rgba(255, 255, 255, 0.75)",
-    "glass_border_glow": "rgba(56, 189, 248, 0.35)",
-    "glass_border_subtle": "rgba(255, 255, 255, 0.18)",
-    "text_primary_dark": "#F8FAFC",
-    "text_secondary_dark": "#94A3B8",
-    "text_primary_light": "#0F172A",
-    "text_secondary_light": "#475569"
+    "glass_border_aero": "rgba(56, 189, 248, 0.35)",
+    "glass_border_vista_highlight": "rgba(255, 255, 255, 0.4)",
+    "text_primary": "#f8fafc",
+    "text_secondary": "#94a3b8",
+    "forbidden_colors": ["#7351B7", "#1B93A4"]
   },
-  "typography": {
-    "heading_font": "Outfit, sans-serif",
-    "body_font": "Inter, sans-serif",
-    "mono_font": "JetBrains Mono, monospace",
-    "hierarchy": {
-      "h1_hero": "text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-none",
-      "h2_section": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight",
-      "h3_card": "text-xl sm:text-2xl font-medium",
-      "body": "text-base leading-relaxed",
-      "caption": "text-xs font-mono tracking-widest uppercase text-cyan-400"
-    }
+  "visual_enhancers": {
+    "aero_glassmorphism": "backdrop-blur-xl bg-slate-900/60 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.37)] rounded-xl",
+    "aero_window_border": "border-2 border-cyan-400/30 bg-gradient-to-b from-cyan-500/20 via-slate-900/80 to-slate-950/90 backdrop-blur-2xl shadow-[0_12px_40px_rgba(56,189,248,0.2)]",
+    "sticky_note": "bg-amber-100/10 backdrop-blur-md border border-amber-300/30 text-amber-100 shadow-lg transform hover:scale-105 transition-all duration-300",
+    "ambient_glow": "box-shadow: 0 0 25px rgba(56, 189, 248, 0.25)"
   },
-  "surface_styles": {
-    "aero_glass_panel": "backdrop-blur-xl bg-slate-900/60 border border-sky-400/25 shadow-[0_8px_32px_rgba(0,180,216,0.12)] rounded-2xl relative overflow-hidden",
-    "aero_glass_button": "relative px-5 py-2.5 rounded-full bg-gradient-to-b from-sky-400/30 to-blue-600/40 border border-sky-300/40 text-white font-medium shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] hover:brightness-125 transition-all duration-300 active:scale-95",
-    "orbital_badge": "px-3 py-1 rounded-full text-xs font-mono bg-cyan-950/70 border border-cyan-500/40 text-cyan-300 flex items-center gap-1.5"
-  },
-  "key_sections": [
-    {
-      "id": "hero",
-      "name": "MISSION CONTROL (Hero)",
-      "description": "Kinetic line-by-line text reveal + 3D Interactive Three.js/R3F universe canvas containing glossy planet, orbital ring, floating pixels, water bottle, camera lens, quantum circuit, and Rocky the glossy rock character that tracks the cursor.",
-      "components": [
-        "HeroCanvas3D (Three.js/R3F interactive scene)",
-        "HeroKineticTitle ('I build things I'm curious about')",
-        "OrbitalStatusTicker (Live status: BITS Pilani Dubai, QKD Researcher, Creative Coder)",
-        "AeroNavDock (Sticky translucent header navigation)"
-      ]
-    },
-    {
-      "id": "projects",
-      "name": "MISSION LOG (Editorial Projects)",
-      "description": "Editorial grid with dynamic interactive visualizers for each major project.",
-      "projects_list": [
-        {
-          "title": "Quantum Key Distribution (QKD) + ML Security Research",
-          "tag": "RESEARCH & AI",
-          "summary": "Hybrid machine learning detection of eavesdropping anomalies in QKD protocols.",
-          "interactive_feature": "Animated QKD Communication Diagram: ALICE -> QUANTUM CHANNEL (photons) -> BOB with interactive EVE attack toggle."
-        },
-        {
-          "title": "AI eInvoicing Gap Analyzer",
-          "tag": "ENTERPRISE AI",
-          "summary": "Automated tax & invoice discrepancy detection engine using LLM document parsing."
-        },
-        {
-          "title": "Letter of Credit Automation",
-          "tag": "FINTECH",
-          "summary": "Document workflow engine simplifying trade finance compliance checks."
-        },
-        {
-          "title": "Pixelator Image Processing Tool",
-          "tag": "CREATIVE CODING",
-          "summary": "Real-time client-side canvas image pixelation and dithering matrix workbench.",
-          "interactive_feature": "Live Interactive Canvas Sandbox: Upload or pick preset image & adjust pixelation slider live!"
-        },
-        {
-          "title": "Water Bottle 2D Physics Simulator",
-          "tag": "PHYSICS & SIMULATION",
-          "summary": "Interactive rigid-body fluid & container physics simulation.",
-          "interactive_feature": "Live Interactive Canvas Sandbox: Drag water bottle, tilt, and observe liquid physics!"
-        }
-      ]
-    },
-    {
-      "id": "experiments",
-      "name": "EXPERIMENT LAB",
-      "description": "Interactive sandboxes for live testing of creative coding prototypes (Pixelator workbench & 2D physics bottle).",
-      "data_testid": "experiment-lab-section"
-    },
-    {
-      "id": "rocky_ai",
-      "name": "ROCKY AI (Project Hail Mary Companion)",
-      "description": "Interactive AI Assistant chatbot styled as an Aero Glass window with status 'ROCKY — ONLINE'. Expresses curiosity, enthusiasm, and uses phrases like 'AMAZE!'. Includes chip suggestions.",
-      "data_testid": "rocky-chat-window"
-    },
-    {
-      "id": "visual_transmissions",
-      "name": "VISUAL TRANSMISSIONS (Photography & Film)",
-      "description": "Stylistically distinct editorial showcase. Masonry lightbox gallery for photography (@hx.cr3) and film posters with video preview modal.",
-      "data_testid": "visual-transmissions-section"
-    },
-    {
-      "id": "skills",
-      "name": "SKILLS ORBIT",
-      "description": "Interactive tag cloud / constellation nodes (No boring progress bars!). Categories: Quantum & AI, Systems & Languages, Web & Creative Tech, Media Production.",
-      "data_testid": "skills-orbit-section"
-    },
-    {
-      "id": "contact",
-      "name": "DEEP SPACE TRANSMITTER (Contact & Footer)",
-      "description": "Translucent Aero glass form for message sending with quick links and social badges.",
-      "data_testid": "contact-section"
-    }
+  "flow_architecture": [
+    "1. INTRO: Personal visually strong hero introducing Himesh Soni (3rd-year CS student at BITS Pilani Dubai Campus). integrated environmental layout, natural curiosity-driven copy.",
+    "2. WHAT I'M INTO: Interactive floating glass panels & environmental elements for areas (Computer Science, AI/ML, Systems/Architecture, Quantum Computing, Photography, Filmmaking). NO percentage skill bars.",
+    "3. WHAT I'M EXPLORING: Note cards, floating thoughts & papers presenting research questions ('Can noisy quantum channels be made more reliable?', etc.).",
+    "4. ROCKY SPACE SCENE: Scroll-driven Three.js animation with Rocky (glossy rock with eyes) + glossy spaceship leading user through stars, nebulae, & planets towards the COMPUTER with cinematic dialogue overlay.",
+    "5. COMPUTER: Auto-boot transition into Windows 7/Vista desktop world (Projects, Research, Photos, Resume, Contact apps inside Aero glass windows)."
   ],
-  "image_urls": {
-    "space_hero_bg": "https://images.unsplash.com/photo-1540198163009-7afda7da2945?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "space_planet_1": "https://images.unsplash.com/photo-1688407832489-cc9db90773f5?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "cinematic_landscape": "https://images.unsplash.com/photo-1635249834983-9550c86f4f2c?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "cinematic_city": "https://images.unsplash.com/photo-1709992263729-53e907152507?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "cinematic_street": "https://images.unsplash.com/photo-1649361681597-80d37a26d9a2?crop=entropy&cs=srgb&fm=jpg&q=85",
-    "cinematic_portrait": "https://images.unsplash.com/photo-1772118761018-d7a09776f31b?crop=entropy&cs=srgb&fm=jpg&q=85"
+  "rocky_ai_chat": {
+    "enabled": true,
+    "description": "Floating AI assistant widget available in World 1 for users to ask questions about Himesh",
+    "data_testid": "rocky-ai-chat-widget"
   },
-  "accessibility_and_testing": {
-    "data_testids_required": [
-      "nav-brand-logo",
-      "nav-link-hero",
-      "nav-link-projects",
-      "nav-link-experiments",
-      "nav-link-rocky",
-      "nav-link-photography",
-      "nav-link-contact",
-      "hero-3d-canvas",
-      "rocky-chat-trigger",
-      "rocky-chat-input",
-      "rocky-chat-submit",
-      "qkd-eve-toggle-button",
-      "pixelator-slider-input",
-      "water-bottle-reset-button",
-      "photo-lightbox-modal",
-      "case-study-modal-close"
-    ],
-    "reduced_motion": "Wrap animations with Framer Motion condition or use fallback static views when prefers-reduced-motion is enabled."
+  "image_urls": {
+    "himesh_avatar": "https://images.unsplash.com/photo-1654110455429-cf322b40a906?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwxfHxzdHVkZW50JTIwZGV2ZWxvcGVyJTIwcG9ydHJhaXQlMjBhdmF0YXJ8ZW58MHx8fHwxNzkwNDQxMTMzfDA&ixlib=rb-4.1.0&q=85",
+    "space_bg": "https://images.unsplash.com/photo-1677926405168-fa86268b7295?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwyfHxjb3NtaWMlMjBnYWxheHklMjBuZWJ1bGElMjBzcGFjZXxlbnwwfHx8fDE3OTA0NDExMzZ8MA&ixlib=rb-4.1.0&q=85",
+    "carina_nebula": "https://images.unsplash.com/photo-1711560026656-814d5a9e980f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHwzfHxjb3NtaWMlMjBnYWxheHklMjBuZWJ1bGElMjBzcGFjZXxlbnwwfHx8fDE3OTA0NDExMzZ8MA&ixlib=rb-4.1.0&q=85"
+  },
+  "component_path": "/app/frontend/src",
+  "testing_strategy": {
+    "requirement": "All interactive elements (buttons, inputs, cards, links, dialogs, chat inputs) MUST include data-testid attributes.",
+    "examples": ["data-testid='hero-intro-section'", "data-testid='interest-card-ai-ml'", "data-testid='exploring-note-quantum'", "data-testid='rocky-chat-button'", "data-testid='computer-auto-boot-trigger'"]
   },
   "instructions_to_main_agent": [
-    "Follow the Aero Glass + Deep Space aesthetic precisely: dark midnight backgrounds (#050914, #0B132B) with bright sky-blue & cyan translucent glass cards.",
-    "Implement the 3D Interactive Hero Canvas using R3F/Three.js with glossy metallic/glass materials, orbital rings, floating elements, and cursor movement interaction for Rocky.",
-    "Build live interactive demos inside the project cards: Animated QKD quantum channel diagram, live Pixelator canvas widget, and live 2D Water Bottle canvas physics sim.",
-    "Ensure Rocky AI Chat window is accessible both floating and inline, responding with enthusiastic persona ('AMAZE!', 'Fascinating human inquiry!').",
-    "Include case-study modal dialogs for each project detailing problem, architecture, research findings, and live demo links.",
-    "Include data-testid attributes on all key interactive elements for automated test verification."
+    "Strictly follow the 5-step flow specified by user: Intro -> What I'm into -> What I'm exploring -> Rocky space animation -> Computer.",
+    "Do NOT place Projects or Research as cards in World 1. Keep them inside the Computer desktop (World 2).",
+    "Ensure Windows Vista Aero glass style is applied to all desktop window frames (translucent glassy borders, soft blur, glowing cyan/blue title bars).",
+    "Include Rocky AI interactive chat widget accessible on World 1.",
+    "Provide responsive fallback for mobile scroll animations.",
+    "Ensure all clickable and key visual components have data-testid attributes."
   ]
 }

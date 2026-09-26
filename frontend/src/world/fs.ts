@@ -12,11 +12,12 @@ import { PHOTOS, FILM } from '../data/photography';
 export type FSNode = {
   id: string;
   name: string;
-  type: 'folder' | 'project' | 'research' | 'experiment' | 'image' | 'empty-music';
+  type: 'folder' | 'project' | 'research' | 'experiment' | 'image' | 'empty-music' | 'app';
   children?: FSNode[];
   projectId?: string;
   researchId?: string;
   experimentId?: string;
+  appId?: 'resume' | 'contact';
   src?: string;
   alt?: string;
   kind?: string; // e.g. 'JPEG image', 'Application'
@@ -106,6 +107,8 @@ export const FS_ROOT: FSNode = {
       ],
     },
     { id: 'music', name: 'Music', type: 'folder', children: [{ id: 'no-tracks', name: 'No track loaded', type: 'empty-music' }] },
+    { id: 'resume', name: 'Resume.pdf', type: 'app', appId: 'resume', kind: 'Document' },
+    { id: 'contact', name: 'Contact', type: 'app', appId: 'contact', kind: 'Application' },
   ],
 };
 

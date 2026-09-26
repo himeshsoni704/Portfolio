@@ -43,18 +43,16 @@ export default function Hero() {
           transition={{ duration: 0.6 }}
           className="font-mono text-[10px] tracking-[0.35em] text-[#2E76B8]"
         >
-          HIMESH SONI
+          HIMESH SONI · 3RD-YEAR CS · BITS PILANI DUBAI CAMPUS
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, delay: 0.1 }}
-          className="mt-5 max-w-3xl text-[clamp(2.2rem,5.4vw,4.3rem)] font-bold leading-[1.04] tracking-tight text-[#0E2A44]"
+          className="mt-5 max-w-3xl text-[clamp(2.6rem,6vw,4.8rem)] font-bold leading-[1.04] tracking-tight text-[#0E2A44]"
         >
-          Computer Science{' '}
-          <span className="font-light text-[#4E7BA3]">•</span> AI/ML{' '}
-          <span className="font-light text-[#4E7BA3]">•</span> Quantum{' '}
-          <span className="font-light text-[#4E7BA3]">•</span> Photography
+          Hi, I'm Himesh.
+          <span className="mt-2 block font-light text-[#4E7BA3]">I like figuring out how things work.</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 18 }}
@@ -62,9 +60,9 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.24 }}
           className="mt-7 max-w-xl text-[16px] leading-relaxed text-[#3D6285]"
         >
-          I'm Himesh, a 3rd-year Computer Science student at BITS Pilani Dubai Campus. I like
-          building things I'm curious about — from AI and quantum experiments to weird little
-          simulations and photography.
+          Whether that's a camera, a computer, an AI model, or something completely random — I'm a
+          3rd-year Computer Science student at BITS Pilani Dubai Campus, and this site is a place,
+          not a résumé. Look around.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -74,10 +72,10 @@ export default function Hero() {
         >
           <a
             data-testid="hero-know-more"
-            href="#about"
+            href="#into"
             className="group inline-flex items-center gap-2.5 rounded-full border border-[#9CC8E8] bg-white/80 px-6 py-3 text-[12.5px] font-semibold tracking-[0.14em] text-[#173A5E] shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
-            KNOW MORE
+            LOOK AROUND
             <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
           </a>
         </motion.div>

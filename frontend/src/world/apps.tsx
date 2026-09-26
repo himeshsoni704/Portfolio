@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { Sun, Moon, Monitor, Mail, Github, Linkedin, Instagram } from 'lucide-react';
 import { useWinMgr } from './WinManager';
 import { AppIcon } from '../win/icons';
 import { MonoLabel, Chip } from '../win/ui';
 import { SKILL_CATEGORIES } from '../data/skills';
 import { JOURNEY } from '../data/timeline';
+import { PROJECTS } from '../data/projects';
+import { SITE } from '../lib/site';
 import Explorer from './Explorer';
-import { Sun, Moon, Monitor } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────
 // Remaining World 2 applications: Timeline, Skills, Settings.
@@ -189,4 +191,116 @@ function ModeCard({ active, onClick, testid, icon, title, note }: { active: bool
 
 export function ComputerApp() {
   return <Explorer startNodeId="computer" />;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RESUME — live document built ONLY from real site data.
+// ─────────────────────────────────────────────────────────────
+
+export function ResumeApp() {
+  return (
+    <div className="min-h-full bg-white p-6" data-testid="app-resume">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#173A5E] pb-4">
+        <div>
+          <h2 className="text-[22px] font-bold tracking-tight text-[#173A5E]">Himesh Soni</h2>
+          <p className="mt-0.5 text-[12px] text-[#4E7BA3]">3rd-year Computer Science student · BITS Pilani Dubai Campus · {SITE.location}</p>
+        </div>
+        <MonoLabel>LIVE RESUME — REAL DATA ONLY</MonoLabel>
+      </div>
+
+      <div className="mt-5">
+        <MonoLabel>EDUCATION</MonoLabel>
+        <ul className="mt-2 space-y-1.5">
+          <li className="flex gap-2 text-[13px] text-[#25384C]"><span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#5FB8F2]" />B.Tech Computer Science — BITS Pilani, Dubai Campus (2024 — present)</li>
+          <li className="flex gap-2 text-[13px] text-[#25384C]"><span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#5FB8F2]" />ISC 2024 — 92.3%</li>
+          <li className="flex gap-2 text-[13px] text-[#25384C]"><span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#5FB8F2]" />ICSE 2022 — 95%</li>
+        </ul>
+      </div>
+
+      <div className="mt-5">
+        <MonoLabel>INTERESTS</MonoLabel>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {['AI/ML', 'Deep Learning', 'Computer Vision', 'Quantum Computing', 'Software Engineering', 'Creative Coding', 'Photography', 'Filmmaking'].map((t) => (
+            <Chip key={t}>{t}</Chip>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <MonoLabel>SKILLS</MonoLabel>
+        <div className="mt-2 space-y-2">
+          {SKILL_CATEGORIES.map((c) => (
+            <div key={c.id}>
+              <p className="text-[11px] font-semibold text-[#33608A]">{c.title}</p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {c.skills.map((s) => (
+                  <span key={s} className="rounded-full border border-[#A9CBE8] bg-[#F2F8FD] px-2.5 py-0.5 text-[11px] text-[#33608A]">{s}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <MonoLabel>PROJECTS</MonoLabel>
+        <ul className="mt-2 space-y-1.5">
+          {PROJECTS.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center gap-2 text-[13px] text-[#25384C]">
+              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-[#5FB8F2]" />
+              <span className="font-semibold">{p.title}</span>
+              <span className="font-mono text-[9px] tracking-[0.18em] text-[#7FA5C4]">{p.category.toUpperCase()} · {p.status}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="mt-6 border-t border-[#D3E4F4] pt-3 font-mono text-[8.5px] tracking-[0.22em] text-[#7FA5C4]">
+        [ADD RESUME PDF] — THE EXPORTED FILE LANDS HERE. EVERYTHING ABOVE IS REAL SITE DATA.
+      </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// CONTACT — the real links. Nothing hidden, nothing fake.
+// ─────────────────────────────────────────────────────────────
+
+export function ContactApp() {
+  const links = [
+    { id: 'email', icon: Mail, label: 'Email', value: SITE.email, href: `mailto:${SITE.email}` },
+    { id: 'github', icon: Github, label: 'GitHub', value: 'github.com/himeshsoni704', href: SITE.github },
+    { id: 'linkedin', icon: Linkedin, label: 'LinkedIn', value: 'Himesh Soni', href: SITE.linkedin },
+    { id: 'instagram', icon: Instagram, label: 'Photography', value: '@hx.cr3', href: SITE.instagram },
+  ];
+  return (
+    <div className="p-6" data-testid="app-contact">
+      <MonoLabel>CONTACT</MonoLabel>
+      <h2 className="mt-2 text-[19px] font-bold text-[#173A5E]">Let's connect.</h2>
+      <p className="mt-1 text-[12.5px] text-[#4E7BA3]">The real links — nothing hidden, nothing fake.</p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {links.map((l) => (
+          <a
+            key={l.id}
+            data-testid={`contact-app-${l.id}`}
+            href={l.href}
+            target={l.id === 'email' ? undefined : '_blank'}
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-xl border border-[#A9CBE8] bg-white/85 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#5FB8F2] hover:shadow-md"
+          >
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-[#BFDFF5] bg-gradient-to-b from-[#D6ECFC] to-[#ABD6F6] text-[#1668B8]">
+              <l.icon className="h-5 w-5" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[12.5px] font-bold text-[#173A5E]">{l.label}</span>
+              <span className="block truncate font-mono text-[10.5px] text-[#4E7BA3]">{l.value}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+      <p className="mt-6 font-mono text-[8.5px] tracking-[0.25em] text-[#7FA5C4]">
+        ROCKY KNOWS ALL OF THIS TOO — ASK HIM ANYTHING ABOUT HIMESH.
+      </p>
+    </div>
+  );
 }

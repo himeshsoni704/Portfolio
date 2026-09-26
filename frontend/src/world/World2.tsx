@@ -4,6 +4,7 @@ import { Sun, Moon, Volume2, Wifi, LogOut, Search, Settings as SettingsIcon, Mon
 import { WinManagerProvider, useWinMgr } from './WinManager';
 import Explorer, { ProjectFileApp, ResearchLab, ExperimentApp, PhotoViewerApp, MediaPlayerApp } from './Explorer';
 import { TimelineApp, SkillsApp, SettingsApp } from './apps';
+import { ResumeApp, ContactApp } from './apps';
 import { AppIcon, type IconKey } from '../win/icons';
 import RockyChat from '../win/RockyChat';
 import BootScreen, { LoginScreen } from '../BootLogin';
@@ -35,14 +36,11 @@ export default function World2({ onExit }: { onExit: () => void }) {
   }, [night]);
 
   // Back to Portfolio: show the Vista logout screen first, then return to
-  // the modern portfolio at the contact section.
+  // the world right where the computer entrance is.
   const exit = () => {
     if (phase === 'logout') return;
     setPhase('logout');
-    window.setTimeout(() => {
-      onExit();
-      window.setTimeout(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }), 60);
-    }, 2000);
+    window.setTimeout(() => onExit(), 2000);
   };
 
   return (
@@ -76,6 +74,8 @@ const DESKTOP_ICONS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'music', label: 'Music', icon: 'media' },
   { id: 'timeline', label: 'Timeline', icon: 'calendar' },
   { id: 'skills', label: 'Skills', icon: 'file' },
+  { id: 'resume', label: 'Resume', icon: 'file' },
+  { id: 'contact', label: 'Contact', icon: 'about' },
 ];
 
 function Desktop({
@@ -106,6 +106,8 @@ function Desktop({
 
   const openIcon = (id: string) => {
     if (id === 'pixelator') return mgr.open({ id: 'pixelator', title: 'Pixelator', icon: 'pixelator', w: 760, h: 640, render: () => <PixelatorApp /> });
+    if (id === 'resume') return mgr.open({ id: 'resume', title: 'Resume — Himesh Soni', icon: 'file', w: 680, h: 600, render: () => <ResumeApp /> });
+    if (id === 'contact') return mgr.open({ id: 'contact-app', title: 'Contact', icon: 'about', w: 620, h: 560, render: () => <ContactApp /> });
     if (id === 'timeline') return mgr.open({ id: 'timeline', title: 'Himesh Timeline', icon: 'calendar', w: 560, h: 560, render: () => <TimelineApp /> });
     if (id === 'skills') return mgr.open({ id: 'skills', title: 'Skills', icon: 'file', w: 640, h: 480, render: () => <SkillsApp /> });
     if (id === 'settings') return mgr.open({ id: 'settings', title: 'Settings', icon: 'about', w: 560, h: 540, render: () => <SettingsApp /> });
@@ -389,6 +391,8 @@ const START_APPS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'music', label: 'Music', icon: 'media' },
   { id: 'timeline', label: 'Himesh Timeline', icon: 'calendar' },
   { id: 'skills', label: 'Skills', icon: 'file' },
+  { id: 'resume', label: 'Resume', icon: 'file' },
+  { id: 'contact', label: 'Contact', icon: 'about' },
 ];
 
 function StartMenu({

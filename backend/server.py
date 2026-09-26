@@ -91,7 +91,7 @@ SKILLS: Programming: Python, Java, C/C++, JavaScript/TypeScript. AI/ML: ML, DL, 
 
 CURRENTLY EXPLORING: AI/ML experiments, Letter of Credit automation, Quantum communication + ML, Scheduling research, Reliability-aware vision research, Efficient vision research, Creative coding, Photography/filmmaking, Interactive portfolio development.
 
-CONTACT (public): GitHub github.com/himeshsoni704. LinkedIn/email: placeholders Himesh has not added yet.
+CONTACT (public): Email himeshsoni704@gmail.com. GitHub github.com/himeshsoni704. LinkedIn: ae.linkedin.com/in/himesh-soni-994326310. Photography Instagram: @hx.cr3 (instagram.com/hx.cr3). The Contact app + Resume live inside this computer.
 
 HARD RULES
 - NEVER invent information about Himesh. If something is not in this knowledge base, say exactly: "I do not know this yet. Himesh has not told me."
@@ -125,7 +125,7 @@ DEMO_KB = [
     (r"photograph|photo|camera|film|cinema|reflexions|filmmak|videograph", "He enjoys experimenting with cameras, photography and filmmaking — involved with the Reflexions Photography & Videography Club at BITS Dubai. He is NOT a videographer. His words."),
     (r"skill|stack|language|python|tools", "Programming: Python, Java, C/C++, JavaScript/TypeScript. AI/ML: ML, DL, Computer Vision, LLMs, RAG. Software: React, FastAPI, Flask, MySQL, Git, Linux. Quantum: Qiskit, Quantum Simulation, QKD. Creative: Photography, Filmmaking, DaVinci Resolve, Spline, Creative Coding."),
     (r"experiment|curious", "Projects are things he built. Research is what he's investigating. Experiments are things he made just to see if he could. The Experiments app has them — Pixelator, water bottle, RAG, CV, creative coding."),
-    (r"contact|email|reach|github|linkedin|hire", "Public: github.com/himeshsoni704. LinkedIn and email aren't added to my knowledge base yet — Himesh hasn't told me."),
+    (r"contact|email|reach|github|linkedin|hire", "Public: himeshsoni704@gmail.com · github.com/himeshsoni704 · LinkedIn: himesh-soni · Instagram @hx.cr3 for photography. Or open the Contact app in the computer. Amaze."),
     (r"hello|hi\b|hey|amaze|yo", "Amaze. Good question. Well — hello first. I'm Rocky. Ask me about Himesh's projects, research, or the experiments. Even the weird ones."),
     (r"what do you know|private|privacy|history|conversations", "I only know what Himesh put in my knowledge base. No private conversations, no files, no history. I live in a portfolio, not a spy movie."),
     (r"who are you|what are you|rocky", "I'm Rocky. Small rock, big curiosity. I live inside HimeshOS and I know a few things about Himesh. Ask me. Amaze."),

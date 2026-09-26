@@ -73,9 +73,9 @@ export const ROCKY_KNOWLEDGE = {
   ],
   contact: {
     github: 'https://github.com/himeshsoni704',
-    linkedin: '[ADD LINKEDIN]',
-    email: '[ADD EMAIL]',
-    instagram: '[ADD INSTAGRAM]',
+    linkedin: 'https://ae.linkedin.com/in/himesh-soni-994326310',
+    email: 'himeshsoni704@gmail.com',
+    instagram: 'https://www.instagram.com/hx.cr3',
   },
   easterEggs: [
     { q: 'are you actually a rock', a: 'Finally. Someone asks the important questions. Yes.' },
