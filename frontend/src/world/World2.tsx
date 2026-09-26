@@ -6,6 +6,7 @@ import Explorer, { ProjectFileApp, ResearchLab, ExperimentApp, PhotoViewerApp, M
 import { TimelineApp, SkillsApp, SettingsApp } from './apps';
 import { AppIcon, type IconKey } from '../win/icons';
 import RockyChat from '../win/RockyChat';
+import BootScreen, { LoginScreen } from '../BootLogin';
 import { PHOTOS, FILM } from '../data/photography';
 import PixelatorApp from '../sections/PixelatorApp';
 
@@ -15,17 +16,17 @@ import PixelatorApp from '../sections/PixelatorApp';
 // modes, working taskbar + start menu, real file system.
 // ─────────────────────────────────────────────────────────────
 
+type Phase = 'boot' | 'login' | 'desktop' | 'logout';
+
 export default function World2({ onExit }: { onExit: () => void }) {
   const [night, setNight] = useState(() => sessionStorage.getItem('himeshos-night') === '1');
-  const [booted, setBooted] = useState(false);
+  const [phase, setPhase] = useState<Phase>('boot');
 
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const t = setTimeout(() => setBooted(true), 1500);
     return () => {
       document.body.style.overflow = prev;
-      clearTimeout(t);
     };
   }, []);
 
@@ -33,16 +34,32 @@ export default function World2({ onExit }: { onExit: () => void }) {
     sessionStorage.setItem('himeshos-night', night ? '1' : '0');
   }, [night]);
 
+  // Back to Portfolio: show the Vista logout screen first, then return to
+  // the modern portfolio at the contact section.
   const exit = () => {
-    onExit();
-    window.setTimeout(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }), 60);
+    if (phase === 'logout') return;
+    setPhase('logout');
+    window.setTimeout(() => {
+      onExit();
+      window.setTimeout(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }), 60);
+    }, 2000);
   };
 
   return (
-    <div className={`fixed inset-0 z-[300] ${night ? 'night' : ''}`} data-testid="world2" data-mode={night ? 'night' : 'day'}>
-      <WinManagerProvider night={night} setNight={setNight} exitToPortfolio={exit}>
-        <Desktop night={night} setNight={setNight} onExit={exit} booted={booted} />
-      </WinManagerProvider>
+    <div
+      className={`fixed inset-0 z-[300] ${night ? 'night' : ''}`}
+      data-testid="world2"
+      data-mode={night ? 'night' : 'day'}
+      data-phase={phase}
+    >
+      {phase === 'boot' && <BootScreen onDone={() => setPhase('login')} />}
+      {phase === 'login' && <LoginScreen onEnter={() => setPhase('desktop')} />}
+      {phase === 'desktop' && (
+        <WinManagerProvider night={night} setNight={setNight} exitToPortfolio={exit}>
+          <Desktop night={night} setNight={setNight} onExit={exit} />
+        </WinManagerProvider>
+      )}
+      {phase === 'logout' && <LoggingOutScreen />}
     </div>
   );
 }
@@ -65,12 +82,10 @@ function Desktop({
   night,
   setNight,
   onExit,
-  booted,
 }: {
   night: boolean;
   setNight: (b: boolean) => void;
   onExit: () => void;
-  booted: boolean;
 }) {
   const mgr = useWinMgr();
   const [startOpen, setStartOpen] = useState(false);
@@ -147,32 +162,10 @@ function Desktop({
         )}
       </div>
 
-      {/* entry flash */}
-      <AnimatePresence>
-        {!booted && (
-          <motion.div
-            className="absolute inset-0 z-[2500] bg-[#020A14]"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <motion.div
-              className="absolute inset-0"
-              style={{ background: 'radial-gradient(60% 50% at 50% 50%, rgba(140,210,255,0.95), rgba(20,80,140,0.55) 55%, transparent 80%)' }}
-              initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: [0, 1, 0.9, 0], scale: [0.4, 1.6, 2.4, 3] }}
-              transition={{ duration: 1.4, times: [0, 0.45, 0.7, 1] }}
-            />
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 1, 0] }} transition={{ duration: 1.4 }} className="absolute inset-0 grid place-items-center font-mono text-[11px] tracking-[0.4em] text-[#BFE3F7]">
-              WELCOME TO HIMESH'S COMPUTER
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* desktop icons */}
       <motion.div
         initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: booted ? 1 : 0, y: booted ? 0 : 14 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6 }}
         className={
           mobile
@@ -251,7 +244,7 @@ function Desktop({
       {/* taskbar */}
       <motion.div
         initial={{ y: 60 }}
-        animate={{ y: booted ? 0 : 60 }}
+        animate={{ y: 0 }}
         transition={{ delay: 0.7, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={`absolute inset-x-0 bottom-0 z-[1700] flex h-[54px] items-center gap-2 border-t px-2 backdrop-blur-2xl ${
           night ? 'border-[#67C3EA]/25 bg-gradient-to-b from-[#0E2440]/90 to-[#050F1E]/95' : 'border-white/40 bg-gradient-to-b from-[#1B5A8F]/65 to-[#0A2C4E]/78'
@@ -336,6 +329,37 @@ function Desktop({
       {/* Rocky — floating above the desktop, bottom-right */}
       <RockyChat />
     </div>
+  );
+}
+
+// ── logout ───────────────────────────────────────────────────
+
+function LoggingOutScreen() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#020a12]"
+      data-testid="logout-screen"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(700px 420px at 50% 58%, rgba(14,165,233,0.16), transparent 70%), radial-gradient(900px 500px at 50% 110%, rgba(16,185,129,0.10), transparent 70%)',
+        }}
+      />
+      <div
+        className="relative h-10 w-10 animate-spin rounded-full border-[3px] border-white/10 border-t-[#38BDF8]"
+        style={{ animationDuration: '0.9s' }}
+        aria-hidden="true"
+      />
+      <p className="relative mt-6 font-display text-xl font-light tracking-[0.3em] text-[#BFE3F7]">
+        Logging off<span className="text-[#38BDF8]">...</span>
+      </p>
+      <p className="relative mt-3 font-mono text-[9px] tracking-[0.4em] text-[#3E6B8A]">HIMESHOS · AERO EDITION</p>
+    </motion.div>
   );
 }
 

@@ -1,8 +1,6 @@
 import { useRef, useState } from 'react';
 import Hero from './sections/Hero';
 import About from './sections/About';
-import Projects from './sections/Projects';
-import Research from './sections/Research';
 import TransitionSpacer from './sections/TransitionSpacer';
 import Contact from './sections/Contact';
 import World2 from './world/World2';
@@ -24,8 +22,6 @@ export default function Site() {
       <main data-testid="portfolio-site">
         <Hero />
         <About />
-        <Projects />
-        <Research />
         {!world2 && <TransitionSpacer onEnter={() => setWorld2(true)} blockedInitially={exitedRef.current} />}
         <Contact />
       </main>
