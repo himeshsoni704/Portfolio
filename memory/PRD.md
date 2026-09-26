@@ -16,16 +16,16 @@ One story, two worlds — the portfolio is a place, not a résumé:
 ## Implemented
 - 2026-09-26: two-world flow; real Pixelator (backend 10/10 pytest + e2e); exit no-re-entry fix; boot/login/logout lifecycle.
 - 2026-09-26 (v6): World 1 rebuild per user spec — personal intro, floating interest panels, sticky-note exploring, Rocky scroll-driven space act leading to the computer (auto-boot + manual BOOT button), Rocky AI chat in World 1, Win7 login (shared by site + computer), boot removed from site start, Vista glass window frames, Resume.pdf + Contact apps in the computer, Rocky's knowledge updated with real contact info. Verified via Playwright: all 7 flows pass desktop + mobile, Rocky email reply works (llm source).
+- 2026-09-26 (v7): REAL ROCKY MODEL — user's STL print model converted to optimized GLB (/models/rocky.glb 0.4MB, 22k faces) and loaded into the space act via GLTFLoader (stone material, procedural rock kept as load-failure fallback); Rocky drifts to hover beside the 3D computer. Vista-style STARTUP + LOGOUT chimes synthesized with Web Audio (original, no copyrighted assets), played on World 2 boot + exit; mute toggle in the taskbar tray + SYSTEM SOUNDS On/Off in Settings, persisted in localStorage. All verified (iteration_5: 100%). User's 7 attachments were design references (Win7/Vista chrome, WMP look) — NOT personal photos; photos + music tracks still await real files from the user.
 
 ## Honesty rules (unchanged)
 - CogMap "[Description coming soon]", FinTeach private (no fake repo), ONGOING statuses exact, no invented metrics/links/music/photos — placeholders clearly marked ([ADD …]).
 
 ## Backlog
-- **P0**: Real photographs into Pictures (data/photography.ts → fs.ts images), real Spline Rocky model URL (RockyChat ROCKY_SPLINE_URL; SpaceScene uses the custom Three.js Rocky meanwhile).
-- **P1**: Music files → Media Player TRACKS, real Resume PDF → ResumeApp, [ADD PROJECT LINK] repos as published.
-- **P2**: Taskbar hover previews, desktop gadget widgets, more World 2 apps, boot sound.
+- **P0**: Real photographs into Pictures (waiting on actual image files from Himesh — attachments so far were design inspo), music tracks for Media Player (waiting on audio files).
+- **P1**: [ADD PROJECT LINK] repos as published, World2.tsx split into Taskbar/StartMenu/Tray files (<400 lines each), resize listener for mobile-mode recompute.
+- **P2**: Taskbar hover previews, desktop gadget widgets, more World 2 apps.
 
 ## Next Tasks
-1. Replace placeholder photos with real assets.
-2. Add music files for Media Player.
-3. Paste Spline Rocky/scene URLs.
+1. Himesh attaches real photo files → wire into Pictures folder (replace placeholders).
+2. Himesh attaches audio tracks → wire into Media Player.
