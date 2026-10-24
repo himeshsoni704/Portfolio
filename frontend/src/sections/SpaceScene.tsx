@@ -135,32 +135,6 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
       world.add(px);
     }
 
-    // ── the spaceship — glossy toy-like craft ──
-    const ship = new THREE.Group();
-    const bodyMat = new THREE.MeshPhysicalMaterial({ color: 0xe8f0f8, roughness: 0.2, metalness: 0.35, clearcoat: 1 });
-    const accent = new THREE.MeshPhysicalMaterial({ color: 0x1668b8, roughness: 0.3, clearcoat: 1 });
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 1.5, 8, 20), bodyMat);
-    body.rotation.z = Math.PI / 2;
-    const cockpit = new THREE.Mesh(
-      new THREE.SphereGeometry(0.3, 24, 24),
-      new THREE.MeshPhysicalMaterial({ color: 0x9fdcff, roughness: 0.05, clearcoat: 1, transparent: true, opacity: 0.85 })
-    );
-    cockpit.position.set(0.45, 0.32, 0);
-    const wingL = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.05, 0.5), accent);
-    wingL.position.set(-0.35, -0.05, 0.5);
-    wingL.rotation.z = -0.18;
-    const wingR = wingL.clone();
-    wingR.position.z = -0.5;
-    wingR.rotation.z = 0.18;
-    const engine = new THREE.Mesh(
-      new THREE.ConeGeometry(0.22, 0.9, 20),
-      new THREE.MeshBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.65 })
-    );
-    engine.rotation.z = -Math.PI / 2;
-    engine.position.set(-1.25, 0, 0);
-    ship.add(body, cockpit, wingL, wingR, engine);
-    world.add(ship);
-
     // ── ROCKY — the real printable Rocky model (GLB from Himesh's STL),
     // with the procedural rock kept as an automatic fallback ──
     const rocky = new THREE.Group();
@@ -195,6 +169,15 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     fallback.add(eyeL, eyeR, glintL, glintR, arm);
     rocky.add(fallback);
 
+    // Rigging uniforms for 3D Rocky's limbs (legs and hands)
+    const rockyUniforms = {
+      uTime: { value: 0 },
+      uWalkSpeed: { value: 1.0 },
+      uWalkAmount: { value: 1.0 },
+      uWave: { value: 0.0 },
+      uReach: { value: 0.0 },
+    };
+
     // the real model — Himesh's Rocky (textured), lazy-loaded when the
     // user approaches the act; swaps in over the fallback once ready
     let modelRequested = false;
@@ -210,6 +193,111 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
           box.getSize(size);
           const scale = 1.55 / Math.max(size.x, size.y, size.z, 0.0001);
           model.scale.setScalar(scale);
+
+          // Rig Rocky's 5 limbs via procedural vertex shader deformation
+          model.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              const mesh = child as THREE.Mesh;
+              const originalMat = mesh.material as THREE.MeshStandardMaterial;
+              if (originalMat) {
+                const mat = originalMat.clone();
+                mat.onBeforeCompile = (shader) => {
+                  shader.uniforms.uTime = rockyUniforms.uTime;
+                  shader.uniforms.uWalkSpeed = rockyUniforms.uWalkSpeed;
+                  shader.uniforms.uWalkAmount = rockyUniforms.uWalkAmount;
+                  shader.uniforms.uWave = rockyUniforms.uWave;
+                  shader.uniforms.uReach = rockyUniforms.uReach;
+
+                  shader.vertexShader = `
+                    uniform float uTime;
+                    uniform float uWalkSpeed;
+                    uniform float uWalkAmount;
+                    uniform float uWave;
+                    uniform float uReach;
+                  ` + shader.vertexShader;
+
+                  shader.vertexShader = shader.vertexShader.replace(
+                    '#include <begin_vertex>',
+                    `
+                    #include <begin_vertex>
+
+                    // Rigged procedural skeletal limb animation for Rocky's 5 limbs
+                    // Limbs extend downward where position.y < -0.05
+                    float limbDepth = clamp((-position.y - 0.05) / 0.75, 0.0, 1.0);
+                    float limbWeight = smoothstep(0.0, 1.0, limbDepth);
+
+                    if (limbWeight > 0.005) {
+                      float angle = atan(position.z, position.x);
+                      
+                      // Identify 5 radial limbs
+                      // Front-Right (Hand/Leg 1): ~ +0.70 rad (+40 deg)
+                      // Front-Left  (Hand/Leg 2): ~ -0.60 rad (-34 deg)
+                      // Back-Right  (Leg 3):      ~ +2.20 rad (+126 deg)
+                      // Back-Left   (Leg 4):      ~ -2.10 rad (-120 deg)
+                      // Back-Center (Leg 5):      ~ -2.85 rad (-163 deg)
+                      
+                      float dFrontR = abs(angle - 0.70);
+                      float dFrontL = abs(angle - (-0.60));
+                      float dBackR  = abs(angle - 2.20);
+                      float dBackL  = abs(angle - (-2.10));
+                      
+                      bool isFrontR = dFrontR < 0.65;
+                      bool isFrontL = dFrontL < 0.65;
+                      bool isBackR  = dBackR  < 0.65;
+                      bool isBackL  = dBackL  < 0.65;
+                      
+                      // 5-phase pentapedal walk gait
+                      float phase = 0.0;
+                      if (isFrontR) phase = 0.0;
+                      else if (isBackL) phase = 1.2566;
+                      else if (isBackR) phase = 2.5132;
+                      else if (isFrontL) phase = 3.7699;
+                      else phase = 5.0265;
+                      
+                      float walkT = uTime * uWalkSpeed * 4.2 + phase;
+                      
+                      // Alternating walking strides
+                      float strideZ = sin(walkT) * 0.16 * limbWeight * uWalkAmount;
+                      float stepLift = max(0.0, cos(walkT)) * 0.18 * limbWeight * uWalkAmount;
+                      float swayX = sin(walkT * 0.5) * 0.08 * limbWeight * uWalkAmount;
+                      
+                      transformed.z += strideZ;
+                      transformed.y += stepLift;
+                      transformed.x += swayX;
+                      
+                      // Front-Right Hand: waving and gesturing
+                      if (isFrontR) {
+                        float waveCycle = sin(uTime * 6.5);
+                        float waveLift = (0.30 + sin(uTime * 2.0) * 0.06) * uWave;
+                        transformed.y += (waveLift + abs(waveCycle) * 0.16) * limbWeight;
+                        transformed.x += (waveCycle * 0.24 + 0.12) * limbWeight * uWave;
+                        transformed.z += (sin(uTime * 3.5) * 0.08 + uReach * 0.28) * limbWeight;
+                      }
+                      
+                      // Front-Left Hand: reaching toward computer screen / typing gesture
+                      if (isFrontL) {
+                        float reachCycle = sin(uTime * 4.5);
+                        float reachForward = (0.38 + reachCycle * 0.14) * uReach;
+                        transformed.z += (reachForward + sin(uTime * 3.0) * 0.08) * limbWeight;
+                        transformed.y += (cos(uTime * 4.5) * 0.16 + uReach * 0.20) * limbWeight;
+                        transformed.x += sin(uTime * 2.5) * 0.08 * limbWeight;
+                      }
+                      
+                      // When near computer, front right also actively points and taps
+                      if (isFrontR && uReach > 0.05) {
+                        float pointCycle = cos(uTime * 4.2 + 1.2);
+                        transformed.z += (0.32 + pointCycle * 0.15) * limbWeight * uReach;
+                        transformed.y += (pointCycle * 0.14 + 0.18) * limbWeight * uReach;
+                      }
+                    }
+                    `
+                  );
+                };
+                mesh.material = mat;
+              }
+            }
+          });
+
           rocky.add(model);
           fallback.visible = false;
         },
@@ -225,6 +313,12 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     );
     modelIO.observe(mount);
     world.add(rocky);
+    const rockyKeyLight = new THREE.DirectionalLight(0xe8f4ff, 3.2);
+    rockyKeyLight.position.set(0, 4, 8);
+    world.add(rockyKeyLight);
+    const ambientSpace = new THREE.AmbientLight(0x95c8f8, 1.8);
+    world.add(ambientSpace);
+
     const rockyLight = new THREE.PointLight(0xdceeff, 2.6, 14);
     rockyLight.position.set(2.2, 2.6, 5.5);
     world.add(rockyLight);
@@ -268,14 +362,28 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
     // ── animation ──
     const clock = new THREE.Clock();
     const pointer = { x: 0, y: 0 };
+    const raycaster = new THREE.Raycaster();
+    let isHoveringRocky = false;
+
     const onPtr = (e: PointerEvent) => {
       pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
       pointer.y = -((e.clientY / window.innerHeight) * 2 - 1);
+
+      // Detect hover over Rocky
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects([rocky], true);
+      isHoveringRocky = hits.length > 0;
+      if (mount) {
+        mount.style.cursor = isHoveringRocky ? 'pointer' : 'default';
+      }
     };
     window.addEventListener('pointermove', onPtr);
     let nextBlink = 3;
     let blinkT = 0;
     let raf = 0;
+    let lastP = 0;
+    let accumulatedStride = 0;
+    let scrollVelocity = 0;
 
     const tick = () => {
       raf = requestAnimationFrame(tick);
@@ -284,33 +392,85 @@ export default function SpaceScene({ progress }: { progress: React.RefObject<num
       const dt = clock.getDelta();
       const p = progress.current ?? 0;
 
+      const dp = p - lastP;
+      lastP = p;
+      const instantVel = Math.abs(dp) / Math.max(dt, 0.001);
+      scrollVelocity += (instantVel - scrollVelocity) * 0.18;
+
       if (!reduced) {
         // camera drift + pointer parallax
         camera.position.x += (pointer.x * 0.7 + (p - 0.5) * 1.2 - camera.position.x) * 0.04;
         camera.position.y += (pointer.y * 0.4 - camera.position.y) * 0.04;
         camera.lookAt(0, 0, -2);
 
-        // spaceship flies across during the transition
-        const shipP = Math.min(Math.max((p - 0.08) / 0.6, 0), 1.15);
-        ship.position.set(-9 + shipP * 18, Math.sin(t * 0.6) * 0.4 + 2.4 - shipP * 1.6, 2);
-        ship.rotation.z = 0.06 + Math.sin(t * 0.8) * 0.05;
-        ship.rotation.y = -0.12;
-        engineLight.position.copy(ship.position).x -= 1.3;
-        engineLight.intensity = 1.8 + Math.sin(t * 22) * 0.7;
-        engine.material.opacity = 0.5 + Math.sin(t * 18) * 0.2;
+        // ─────────────────────────────────────────────────────────────
+        // 3-STAGE CINEMATIC SEQUENCE — SCROLL-DRIVEN WALKING:
+        // 1. Stage 1 (p: 0.0 -> 0.44): Rocky takes real strides across the screen AS USER SCROLLS
+        //    from left (-9.2) to center (-0.2), facing right.
+        // 2. Stage 2 (p: 0.44 -> 0.74): Rocky pauses in center, turns to face user, waves hands,
+        //    speaks: "Amaze amaze! Wanna know more about me?"
+        // 3. Stage 3 (p: 0.74 -> 1.0): Rocky walks over to computer (x: 1.8), reaches hands to screen!
+        // ─────────────────────────────────────────────────────────────
 
-        // rocky enters midway, floats, looks at viewer, waves — then drifts
-        // over beside the computer and turns toward it
-        const rIn = Math.min(Math.max((p - 0.38) / 0.25, 0), 1);
-        const rTo = Math.min(Math.max((p - 0.7) / 0.3, 0), 1);
-        rocky.position.set(
-          6.5 - rIn * 6.2 + rTo * 1.5,
-          -1.6 + Math.sin(t * 0.9) * 0.22 + rIn * 0.8 + rTo * 0.75,
-          3.4 - rTo * 1.2
-        );
-        rocky.rotation.y += ((rTo > 0.4 ? 0.35 : -0.3 + pointer.x * 0.25) - rocky.rotation.y) * 0.06;
-        rocky.rotation.x += ((pointer.y * 0.15) - rocky.rotation.x) * 0.06;
-        const waveP = p > 0.45 && p < 0.78 ? Math.sin(t * 5) * 0.5 : 0;
+        const walkIn = Math.min(Math.max((p - 0.02) / 0.42, 0), 1);
+        const turnToCamera = Math.min(Math.max((p - 0.42) / 0.12, 0), 1);
+        const toComputer = Math.min(Math.max((p - 0.72) / 0.22, 0), 1);
+
+        const isWalkingPhase = (p > 0.01 && p < 0.45) || (p > 0.70 && p < 0.98);
+        const isActivelyScrolling = scrollVelocity > 0.015;
+
+        // Advance stride cycle with scroll
+        accumulatedStride += dp * 110.0;
+
+        // When actively scrolling, limbs step directly to scroll progress
+        // When stationary, gentle subtle breathing
+        const walkT = accumulatedStride + (isActivelyScrolling ? 0 : Math.sin(t * 1.8) * 0.2);
+        rockyUniforms.uTime.value = walkT;
+
+        const targetWalkAmount = isActivelyScrolling && isWalkingPhase
+          ? Math.min(Math.max(scrollVelocity * 1.2, 0.85), 1.3)
+          : isWalkingPhase
+            ? 0.15
+            : 0.0;
+        rockyUniforms.uWalkAmount.value += (targetWalkAmount - rockyUniforms.uWalkAmount.value) * 0.16;
+        rockyUniforms.uWalkSpeed.value = 1.0;
+
+        // Waving & reaching gesture targets (waves whenever hovered OR in Stage 2)
+        const targetWave = (isHoveringRocky || (p > 0.40 && p < 0.74)) ? 1.0 : 0.0;
+        const targetReach = p > 0.72 ? 1.0 : 0.0;
+        rockyUniforms.uWave.value += (targetWave - rockyUniforms.uWave.value) * 0.12;
+        rockyUniforms.uReach.value += (targetReach - rockyUniforms.uReach.value) * 0.08;
+
+        // Dynamic stepping waddle and body bobbing synced directly with scroll stride!
+        const stepBob = Math.sin(walkT * 2.2) * (0.09 * rockyUniforms.uWalkAmount.value);
+        const stepRoll = Math.sin(walkT * 1.1) * (0.07 * rockyUniforms.uWalkAmount.value);
+        const stepPitch = Math.cos(walkT * 2.2) * (0.04 * rockyUniforms.uWalkAmount.value);
+
+        // Rocky's position across the screen:
+        // Starts at x = -9.2 (left offscreen), strides across to x = 0.0 (center), then walks to x = 1.8 (beside computer)
+        const currentX = -9.2 + walkIn * 9.2 + toComputer * 1.8;
+        const currentY = -1.1 + stepBob + toComputer * 0.45;
+        const currentZ = 3.6 - toComputer * 1.2;
+
+        rocky.position.set(currentX, currentY, currentZ);
+
+        // Rocky's orientation:
+        // While walking in: faces right (+Math.PI / 2 = 1.57 rad)
+        // In dialogue: smoothly faces camera (0.0 rad)
+        // At computer: turns toward monitor (+0.55 rad)
+        let targetRotY = 1.57; // default facing right
+        if (walkIn >= 0.95) {
+          targetRotY = 1.57 * (1.0 - turnToCamera);
+        }
+        if (toComputer > 0.01) {
+          targetRotY = 0.55;
+        }
+
+        rocky.rotation.y += (targetRotY + pointer.x * 0.15 - rocky.rotation.y) * 0.08;
+        rocky.rotation.x += (pointer.y * 0.12 + stepPitch - rocky.rotation.x) * 0.08;
+        rocky.rotation.z += (stepRoll - rocky.rotation.z) * 0.08;
+
+        const waveP = p > 0.40 && p < 0.76 ? Math.sin(t * 6) * 0.6 : Math.sin(walkT) * 0.2 * rockyUniforms.uWalkAmount.value;
         arm.rotation.z = -0.9 + waveP;
 
         // the computer reveals at the end of the act

@@ -139,17 +139,17 @@ export function WinManagerProvider({
   );
 }
 
-// authentic Vista window frame — translucent glass border + blur
+// authentic Windows Vista Aero window frame — translucent glass border + blur + specular reflection
 function frameStyle(night: boolean): React.CSSProperties {
   return {
     background: night
-      ? 'linear-gradient(180deg, rgba(110,170,220,0.16) 0%, rgba(36,76,126,0.24) 6%, rgba(12,30,56,0.42) 55%, rgba(5,16,34,0.5) 100%)'
-      : 'linear-gradient(180deg, rgba(248,252,255,0.6) 0%, rgba(198,228,250,0.48) 6%, rgba(158,200,236,0.42) 58%, rgba(146,192,230,0.5) 100%)',
+      ? 'linear-gradient(180deg, rgba(90,140,190,0.28) 0%, rgba(28,54,90,0.38) 10%, rgba(10,24,48,0.58) 60%, rgba(5,14,30,0.72) 100%)'
+      : 'linear-gradient(180deg, rgba(235,246,255,0.55) 0%, rgba(185,220,248,0.42) 10%, rgba(145,195,235,0.48) 60%, rgba(125,180,225,0.60) 100%)',
     boxShadow: night
-      ? 'inset 0 0 0 1px rgba(160,215,250,0.3), inset 0 0 30px rgba(120,190,250,0.12), 0 50px 110px rgba(2,20,45,0.65)'
-      : 'inset 0 0 0 1px rgba(255,255,255,0.65), inset 0 0 30px rgba(255,255,255,0.3), 0 50px 110px rgba(2,20,45,0.6)',
-    backdropFilter: 'blur(28px) saturate(1.7)',
-    WebkitBackdropFilter: 'blur(28px) saturate(1.7)',
+      ? 'inset 0 1px 0 rgba(255,255,255,0.65), inset 0 0 0 1px rgba(125,211,252,0.35), 0 35px 90px rgba(0,0,0,0.75)'
+      : 'inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(255,255,255,0.55), 0 30px 80px rgba(5,25,55,0.55)',
+    backdropFilter: 'blur(24px) saturate(1.8)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.8)',
   } as React.CSSProperties;
 }
 
@@ -166,12 +166,12 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={reduced ? undefined : { opacity: 0, scale: 0.95, y: 12 }}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-      className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-[12px] border shadow-[0_40px_100px_rgba(2,20,45,0.6)] ${
-        night ? 'border-[#67C3EA]/25' : 'border-white/55'
+      className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-[10px] border shadow-[0_35px_90px_rgba(0,0,0,0.65)] ${
+        night ? 'border-[#67C3EA]/35' : 'border-white/70'
       }`}
       style={
         full
-          ? { left: 8, top: 8, right: 8, bottom: 66, zIndex: win.z, ...frameStyle(night) }
+          ? { left: 8, top: 8, right: 8, bottom: 62, zIndex: win.z, ...frameStyle(night) }
           : { left: pos.x, top: pos.y, width: win.w + 14, height: win.h + 14, zIndex: win.z, ...frameStyle(night) }
       }
       onPointerDown={() => focus(win.key)}
@@ -179,30 +179,46 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
       aria-label={win.title}
       data-testid={`win2-${win.id}`}
     >
+      {/* Vista diagonal Aero reflection sheen */}
       <div
-        className={`relative flex h-10 shrink-0 items-center justify-between border-b px-2.5 select-none ${
-          night ? 'border-[#67C3EA]/20' : 'border-white/45'
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 opacity-40"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.1) 25%, transparent 55%)',
+        }}
+      />
+
+      {/* Windows Vista Aero Titlebar */}
+      <div
+        className={`relative z-10 flex h-9 shrink-0 items-center justify-between border-b px-2 select-none ${
+          night ? 'border-[#67C3EA]/25 bg-black/15' : 'border-white/50 bg-white/20'
         }`}
         style={{ cursor: full ? 'default' : 'grab' }}
         onPointerDown={startDrag}
         onDoubleClick={() => !mobile && toggleMax(win.key)}
       >
-        {!night && <div className="pointer-events-none absolute inset-x-2 top-0 h-1/2 rounded-t-lg bg-gradient-to-b from-white/50 to-transparent" aria-hidden="true" />}
+        {/* Vista specular top light glare */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[14px] bg-gradient-to-b from-white/70 to-transparent opacity-80" aria-hidden="true" />
+        
         <div className="relative flex items-center gap-2 pl-1">
-          <span className="h-5 w-5 [&>svg]:h-5 [&>svg]:w-5">
+          <span className="h-4.5 w-4.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] [&>svg]:h-4.5 [&>svg]:w-4.5">
             <AppIcon name={win.icon} />
           </span>
-          <span className={`max-w-[50vw] truncate text-[12.5px] font-semibold tracking-wide ${night ? 'text-[#D8EAF8]' : 'text-[#1A3A5C]'}`}>
+          <span className={`max-w-[50vw] truncate text-[12.5px] font-semibold tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] ${night ? 'text-[#EAF4FC]' : 'text-[#0E2842]'}`}>
             {win.title}
           </span>
         </div>
-        <div className="relative flex items-center gap-1.5">
+
+        {/* Windows Vista Window Controls Cluster */}
+        <div className="relative flex items-center gap-1">
           <WinBtn label="Minimize window" testid={`win2-${win.id}-min`} night={night} onClick={() => minimize(win.key)}>
             <Minus className="h-3.5 w-3.5" strokeWidth={2.5} />
           </WinBtn>
           <WinBtn label="Maximize window" testid={`win2-${win.id}-max`} night={night} onClick={() => !mobile && toggleMax(win.key)}>
             <Maximize2 className="h-3 w-3" strokeWidth={2.5} />
           </WinBtn>
+          
+          {/* Iconic Windows Vista Glowing Red Close Button */}
           <button
             data-testid={`win2-${win.id}-close`}
             aria-label="Close window"
@@ -210,15 +226,73 @@ function AeroAppWindow({ win }: { win: WinInstance }) {
               e.stopPropagation();
               close(win.key);
             }}
-            className="grid h-7 w-8 place-items-center rounded-md border border-[#E8A9A0] bg-gradient-to-b from-[#F09588] to-[#D2554A] text-white shadow-sm transition-all hover:from-[#F8A89C] active:scale-95"
+            className="group relative grid h-[22px] w-[44px] place-items-center rounded-[4px] border border-[#FF9999]/60 text-white shadow-[0_1px_2px_rgba(0,0,0,0.45)] transition-all hover:shadow-[0_0_16px_rgba(255,40,20,0.95)] active:scale-95"
+            style={{
+              background: 'linear-gradient(180deg, #E65A4E 0%, #D32F2F 50%, #B71C1C 100%)',
+            }}
           >
-            <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+            {/* Top glass highlight */}
+            <span aria-hidden="true" className="pointer-events-none absolute inset-x-0.5 top-0 h-[8px] rounded-t-[3px] bg-gradient-to-b from-white/75 to-transparent" />
+            <X className="relative z-10 h-3.5 w-3.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" strokeWidth={2.8} />
           </button>
         </div>
       </div>
 
+      {/* Windows Vista Explorer Navigation & Command Bar */}
       <div
-        className={`aero-body relative mx-2 mb-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[9px] border ${
+        className={`relative z-10 flex flex-wrap items-center justify-between gap-1.5 border-b px-2.5 py-1 text-[11px] select-none ${
+          night
+            ? 'border-[#67C3EA]/20 bg-gradient-to-b from-[#10243E]/90 to-[#0A182A]/90 text-[#CBE3F5]'
+            : 'border-white/70 bg-gradient-to-b from-[#F2F8FE]/95 to-[#E1EFFC]/90 text-[#1E3B5C]'
+        }`}
+      >
+        {/* Vista Back/Forward buttons and Breadcrumb bar */}
+        <div className="flex items-center gap-1.5 flex-1 min-w-[220px]">
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              title="Back"
+              className="grid h-[22px] w-[22px] place-items-center rounded-full border border-sky-300/70 bg-gradient-to-b from-[#56B8FF] to-[#1E88E5] text-white shadow-sm hover:brightness-110 active:scale-95"
+            >
+              <span className="text-[10px] font-bold">◀</span>
+            </button>
+            <button
+              type="button"
+              title="Forward"
+              className="grid h-[22px] w-[22px] place-items-center rounded-full border border-sky-300/40 bg-gradient-to-b from-sky-400/50 to-sky-600/50 text-white/60 shadow-sm"
+              disabled
+            >
+              <span className="text-[10px] font-bold">▶</span>
+            </button>
+          </div>
+
+          {/* Breadcrumb address bar */}
+          <div
+            className={`flex items-center gap-1.5 flex-1 rounded-[4px] border px-2 py-0.5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] ${
+              night
+                ? 'border-sky-500/30 bg-black/45 text-sky-200'
+                : 'border-sky-300/70 bg-white/95 text-slate-800'
+            }`}
+          >
+            <span className="h-3.5 w-3.5 [&>svg]:h-3.5 [&>svg]:w-3.5 opacity-80">
+              <AppIcon name={win.icon} />
+            </span>
+            <span className="opacity-60 text-[10px]">Computer</span>
+            <span className="opacity-40 text-[9px]">▸</span>
+            <span className="font-semibold text-[11px] truncate">{win.title}</span>
+          </div>
+        </div>
+
+        {/* Vista Command Bar Actions */}
+        <div className="flex items-center gap-2.5 px-1 font-medium opacity-85">
+          <span className="cursor-pointer hover:underline hover:text-sky-500 transition-colors">Organize ▾</span>
+          <span className="cursor-pointer hover:underline hover:text-sky-500 transition-colors">Views ▾</span>
+          <span className="hidden sm:inline cursor-pointer hover:underline hover:text-sky-500 transition-colors">Properties</span>
+        </div>
+      </div>
+
+      <div
+        className={`aero-body relative z-10 mx-1.5 mb-1.5 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-[6px] border ${
           night ? 'aero-body-night border-[#67C3EA]/25' : 'border-white/85 bg-[#F7FBFF] text-[#25384C]'
         }`}
       >
@@ -271,13 +345,14 @@ function WinBtn({
         e.stopPropagation();
         onClick();
       }}
-      className={`grid h-7 w-8 place-items-center rounded-md border shadow-sm transition-all active:scale-95 ${
+      className={`relative grid h-[22px] w-[30px] place-items-center rounded-[4px] border shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-all active:scale-95 ${
         night
-          ? 'border-[#67C3EA]/30 bg-gradient-to-b from-[#22436B]/90 to-[#16304F]/85 text-[#BBDFF7] hover:from-[#2B5580]'
-          : 'border-white/70 bg-gradient-to-b from-white/90 to-[#DCEEFC]/80 text-[#33567A] hover:from-white'
+          ? 'border-[#67C3EA]/40 bg-gradient-to-b from-[#2E5B8E]/85 to-[#16365C]/85 text-[#BBDFF7] hover:from-[#3D74B4] hover:shadow-[0_0_10px_rgba(100,185,255,0.6)]'
+          : 'border-white/80 bg-gradient-to-b from-white/95 to-[#D3E8F8]/90 text-[#254A6E] hover:from-white hover:shadow-[0_0_10px_rgba(255,255,255,0.8)]'
       }`}
     >
-      {children}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0.5 top-0 h-[8px] rounded-t-[3px] bg-gradient-to-b from-white/80 to-transparent" />
+      <span className="relative z-10">{children}</span>
     </button>
   );
 }

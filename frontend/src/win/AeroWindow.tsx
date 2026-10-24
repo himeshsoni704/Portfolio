@@ -138,9 +138,13 @@ function AeroWindowFrame({
             data-testid={`aero-${win.id}-close`}
             aria-label="Close window"
             onClick={onClose}
-            className="grid h-7 w-8 place-items-center rounded-md border border-[#E8A9A0] bg-gradient-to-b from-[#F09588] to-[#D2554A] text-white shadow-sm transition-all hover:from-[#F8A89C] active:scale-95"
+            className="group relative grid h-[22px] w-[44px] place-items-center rounded-[4px] border border-[#FF9999]/60 text-white shadow-[0_1px_2px_rgba(0,0,0,0.45)] transition-all hover:shadow-[0_0_16px_rgba(255,40,20,0.95)] active:scale-95"
+            style={{
+              background: 'linear-gradient(180deg, #E65A4E 0%, #D32F2F 50%, #B71C1C 100%)',
+            }}
           >
-            <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+            <span aria-hidden="true" className="pointer-events-none absolute inset-x-0.5 top-0 h-[8px] rounded-t-[3px] bg-gradient-to-b from-white/75 to-transparent" />
+            <X className="relative z-10 h-3.5 w-3.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" strokeWidth={2.8} />
           </button>
         </div>
       </div>

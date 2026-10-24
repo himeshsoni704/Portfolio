@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Volume2, VolumeX, Wifi, LogOut, Search, Settings as SettingsIcon, Monitor } from 'lucide-react';
+import { Sun, Moon, Volume2, VolumeX, Wifi, LogOut, Search, Settings as SettingsIcon, Monitor, Power, Lock } from 'lucide-react';
 import { WinManagerProvider, useWinMgr } from './WinManager';
 import { isSoundOn, setSoundOn, playStartup, playLogout } from '../win/sounds';
 import Explorer, { ProjectFileApp, ResearchLab, ExperimentApp, PhotoViewerApp, MediaPlayerApp } from './Explorer';
@@ -85,6 +85,28 @@ const DESKTOP_ICONS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'contact', label: 'Contact', icon: 'about' },
 ];
 
+const PORTFOLIO_TABS: Array<{ id: string; label: string; filter?: string[] }> = [
+  { id: 'all', label: '✦ All Work' },
+  { id: 'built', label: '🚀 Built Projects', filter: ['computer', 'built', 'pixelator', 'experiments'] },
+  { id: 'research', label: '🔬 Research & Lab', filter: ['investigating', 'computer'] },
+  { id: 'career', label: '💼 Career & Skills', filter: ['timeline', 'skills', 'resume', 'contact'] },
+  { id: 'media', label: '🎨 Media & Art', filter: ['pictures', 'music'] },
+];
+
+const DEFAULT_ICON_POSITIONS: Record<string, { x: number; y: number }> = {
+  computer: { x: 20, y: 76 },
+  built: { x: 20, y: 202 },
+  investigating: { x: 20, y: 328 },
+  experiments: { x: 20, y: 454 },
+  pixelator: { x: 20, y: 580 },
+  pictures: { x: 154, y: 76 },
+  music: { x: 154, y: 202 },
+  timeline: { x: 154, y: 328 },
+  skills: { x: 154, y: 454 },
+  resume: { x: 154, y: 580 },
+  contact: { x: 288, y: 76 },
+};
+
 function Desktop({
   night,
   setNight,
@@ -98,8 +120,16 @@ function Desktop({
   const [startOpen, setStartOpen] = useState(false);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('all');
   const [sound, setSound] = useState<boolean>(isSoundOn());
-  const mobile = window.innerWidth < 768;
+  const desktopRef = useRef<HTMLDivElement>(null);
+  const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  const visibleIcons = useMemo(() => {
+    const tab = PORTFOLIO_TABS.find((t) => t.id === activeTab);
+    if (!tab || !tab.filter) return DESKTOP_ICONS;
+    return DESKTOP_ICONS.filter((i) => tab.filter!.includes(i.id));
+  }, [activeTab]);
 
   useEffect(() => {
     const sync = () => setSound(isSoundOn());
@@ -140,6 +170,7 @@ function Desktop({
 
   return (
     <div
+      ref={desktopRef}
       className="absolute inset-0 overflow-hidden"
       onContextMenu={(e) => {
         e.preventDefault();
@@ -148,20 +179,21 @@ function Desktop({
       onClick={() => {
         setStartOpen(false);
         setCtx(null);
+        setSelected(null);
       }}
     >
-      {/* wallpaper — day / night crossfade */}
+      {/* wallpaper — Windows Vista Aurora day / night crossfade */}
       <div className="absolute inset-0" aria-hidden="true">
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
-          style={{ backgroundImage: 'url(/wallpaper.jpg)', filter: 'saturate(1.05)', opacity: night ? 0 : 1 }}
+          style={{ backgroundImage: 'url(/wallpaper.jpg)', filter: 'saturate(1.08)', opacity: night ? 0 : 1 }}
           data-testid="wallpaper-day"
         />
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
           style={{
             backgroundImage: 'url(/wallpaper.jpg)',
-            filter: 'brightness(0.3) saturate(0.65) hue-rotate(-12deg)',
+            filter: 'brightness(0.32) saturate(0.7) hue-rotate(-15deg)',
             opacity: night ? 1 : 0,
           }}
           data-testid="wallpaper-night"
@@ -178,38 +210,103 @@ function Desktop({
         )}
       </div>
 
-      {/* desktop icons */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.6 }}
-        className={
-          mobile
-            ? 'absolute inset-x-0 top-5 z-[2] grid grid-cols-3 gap-1 px-3'
-            : 'absolute left-4 top-5 z-[2] flex max-h-[calc(100%-130px)] flex-col flex-wrap content-start gap-1'
-        }
-        data-testid="world2-icons"
-      >
-        {DESKTOP_ICONS.map((d) => (
-          <button
-            key={d.id}
-            data-testid={`world2-icon-${d.id}`}
-            onClick={() => (mobile ? openIcon(d.id) : setSelected(d.id))}
-            onDoubleClick={() => !mobile && openIcon(d.id)}
-            aria-label={`Open ${d.label}`}
-            className={`flex w-[96px] flex-col items-center gap-1.5 rounded-xl border p-2.5 text-center transition-all ${
-              selected === d.id ? 'border-[#7DD3FC]/60 bg-[#7DD3FC]/25 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]' : 'border-transparent hover:border-white/40 hover:bg-white/15'
-            }`}
-          >
-            <span className="h-12 w-12 drop-shadow-[0_6px_12px_rgba(10,50,90,0.45)] [&>svg]:h-12 [&>svg]:w-12">
-              <AppIcon name={d.icon} />
-            </span>
-            <span className="text-shadow-os text-[11px] font-medium leading-tight text-white">{d.label}</span>
-          </button>
-        ))}
-      </motion.div>
+      {/* Windows Vista Aero Portfolio Tabs Header */}
+      <div className="pointer-events-auto absolute top-3 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-1 rounded-full border border-white/60 bg-gradient-to-b from-white/35 via-white/20 to-white/10 p-1 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <span className="hidden sm:inline-block px-3 text-[11px] font-bold tracking-wider text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+            PORTFOLIO
+          </span>
+          {PORTFOLIO_TABS.map((t) => {
+            const active = activeTab === t.id;
+            const count = t.filter
+              ? DESKTOP_ICONS.filter((i) => t.filter!.includes(i.id)).length
+              : DESKTOP_ICONS.length;
+            return (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setActiveTab(t.id);
+                  setSelected(null);
+                }}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold transition-all ${
+                  active
+                    ? 'border border-cyan-300/90 bg-gradient-to-b from-[#64B5F6] to-[#1976D2] text-white shadow-[0_0_14px_rgba(33,150,243,0.7),inset_0_1px_0_rgba(255,255,255,0.8)]'
+                    : 'border border-transparent text-white/85 hover:border-white/50 hover:bg-white/20 hover:text-white'
+                }`}
+              >
+                <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">{t.label}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.2 text-[9px] font-bold ${
+                    active ? 'bg-white/30 text-white' : 'bg-black/35 text-white/80'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* windows render via WinManagerProvider (absolute in this fixed container) */}
+        <div className="hidden lg:flex items-center gap-2 rounded-full border border-white/40 bg-black/30 px-3 py-1 text-[11px] font-medium text-white/90 backdrop-blur-md">
+          <span>💡 Movable Vista Icons — drag anywhere</span>
+        </div>
+      </div>
+
+      {/* Windows Vista Movable & Bigger Desktop Icons Arranged by Portfolio Tab */}
+      <div className="pointer-events-auto absolute inset-0 z-[2]" data-testid="world2-icons">
+        <AnimatePresence>
+          {visibleIcons.map((d, idx) => {
+            const initPos =
+              activeTab === 'all'
+                ? DEFAULT_ICON_POSITIONS[d.id] ?? { x: 20, y: 76 }
+                : { x: 28 + (idx % 5) * 138, y: 76 + Math.floor(idx / 5) * 136 };
+
+            return (
+              <motion.div
+                key={`${activeTab}-${d.id}`}
+                initial={{ opacity: 0, scale: 0.88, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.88 }}
+                transition={{ duration: 0.2 }}
+                drag={!mobile}
+                dragMomentum={false}
+                dragElastic={0.06}
+                dragConstraints={desktopRef}
+                whileDrag={{ scale: 1.08, zIndex: 120, filter: 'drop-shadow(0 18px 25px rgba(0,0,0,0.7))' }}
+                style={{
+                  position: 'absolute',
+                  left: initPos.x,
+                  top: initPos.y,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelected(d.id);
+                  if (mobile) openIcon(d.id);
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  if (!mobile) openIcon(d.id);
+                }}
+                data-testid={`world2-icon-${d.id}`}
+                aria-label={`Open ${d.label}`}
+                className={`group flex w-[116px] cursor-pointer flex-col items-center gap-1.5 rounded-xl border p-2.5 text-center select-none transition-colors ${
+                  selected === d.id
+                    ? 'border-[#70C5F5]/90 bg-[#42A5F5]/30 shadow-[inset_0_0_12px_rgba(125,211,252,0.5),0_0_16px_rgba(66,165,245,0.4)] backdrop-blur-[4px]'
+                    : 'border-transparent hover:border-white/50 hover:bg-white/20 hover:backdrop-blur-[2px]'
+                }`}
+              >
+                {/* Bigger Icon: 64x64px with Vista 3D drop-shadow */}
+                <span className="h-16 w-16 drop-shadow-[0_8px_16px_rgba(0,0,0,0.65)] transition-transform group-hover:scale-105 [&>svg]:h-16 [&>svg]:w-16">
+                  <AppIcon name={d.icon} />
+                </span>
+                <span className="text-[12px] font-semibold text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)] max-w-[108px] line-clamp-2 leading-tight">
+                  {d.label}
+                </span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
 
       {/* context menu */}
       <AnimatePresence>
@@ -244,11 +341,10 @@ function Desktop({
         )}
       </AnimatePresence>
 
-      {/* start menu */}
+      {/* Windows Vista 2-Pane Start Menu */}
       <AnimatePresence>
         {startOpen && (
-          <StartMenu
-            key="start2"
+          <VistaStartMenu
             night={night}
             onClose={() => setStartOpen(false)}
             onOpenIcon={openIcon}
@@ -257,35 +353,34 @@ function Desktop({
         )}
       </AnimatePresence>
 
-      {/* taskbar */}
+      {/* Windows Vista Aero Taskbar */}
       <motion.div
         initial={{ y: 60 }}
         animate={{ y: 0 }}
-        transition={{ delay: 0.7, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className={`absolute inset-x-0 bottom-0 z-[1700] flex h-[54px] items-center gap-2 border-t px-2 backdrop-blur-2xl ${
-          night ? 'border-[#67C3EA]/25 bg-gradient-to-b from-[#0E2440]/90 to-[#050F1E]/95' : 'border-white/40 bg-gradient-to-b from-[#1B5A8F]/65 to-[#0A2C4E]/78'
+        transition={{ delay: 0.5, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className={`absolute inset-x-0 bottom-0 z-[1700] flex h-[48px] items-center gap-2 border-t px-2 backdrop-blur-2xl ${
+          night
+            ? 'border-white/20 bg-gradient-to-b from-black/80 to-[#040A14]/95 shadow-[0_-2px_15px_rgba(0,0,0,0.7)]'
+            : 'border-white/35 bg-gradient-to-b from-[#0F1D2C]/85 via-black/85 to-[#06101C]/95 shadow-[0_-2px_20px_rgba(0,0,0,0.6)]'
         }`}
         data-testid="world2-taskbar"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          data-testid="world2-start-button"
-          aria-label="Start"
+        {/* Top 1px Vista Specular Highlight Line */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" aria-hidden="true" />
+
+        {/* Iconic Windows Vista 3D Start Orb (protrudes above taskbar) */}
+        <VistaStartOrb
+          isOpen={startOpen}
           onClick={(e) => {
             e.stopPropagation();
             setStartOpen((s) => !s);
           }}
-          className={`relative ml-1 grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 transition-all active:scale-95 ${
-            startOpen ? 'border-[#9FD8FF] shadow-[0_0_18px_rgba(125,211,252,0.8)]' : 'border-white/70 shadow-[0_0_12px_rgba(56,189,248,0.45)] hover:shadow-[0_0_20px_rgba(125,211,252,0.7)]'
-          }`}
-          style={{ background: 'radial-gradient(circle at 35% 30%, #7DD3FC 0%, #0EA5E9 45%, #0B4A8F 100%)' }}
-        >
-          <span className="text-base font-extrabold text-white drop-shadow">H</span>
-          {!night && <span className="pointer-events-none absolute left-1.5 right-1.5 top-1 h-3 rounded-full bg-gradient-to-b from-white/80 to-transparent" aria-hidden="true" />}
-        </button>
+        />
 
-        <div className="mx-1 h-8 w-px bg-white/20" aria-hidden="true" />
+        <div className="mx-1 h-7 w-px bg-white/20" aria-hidden="true" />
 
+        {/* Windows Vista Running Taskbar Tabs */}
         <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto" data-testid="world2-taskbar-apps">
           {mgr.windows.map((w) => {
             const active = w.key === mgr.activeKey && !w.min;
@@ -294,27 +389,29 @@ function Desktop({
                 key={w.key}
                 data-testid={`taskbar-app-${w.id}`}
                 onClick={() => mgr.toggleFromTaskbar(w.key)}
-                className={`flex h-10 max-w-[180px] shrink-0 items-center gap-2 rounded-lg border px-3 text-left transition-all ${
+                className={`group relative flex h-[34px] max-w-[190px] shrink-0 items-center gap-2 rounded-[5px] border px-2.5 text-left transition-all ${
                   active
-                    ? night
-                      ? 'border-[#67C3EA]/50 bg-[#67C3EA]/20'
-                      : 'border-white/60 bg-white/30'
-                    : night
-                      ? 'border-white/10 bg-white/5 hover:bg-white/10'
-                      : 'border-white/20 bg-white/10 hover:bg-white/20'
+                    ? 'border-[#9FE0FF]/80 bg-gradient-to-b from-[#2B7CBD]/60 to-[#124E82]/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_0_12px_rgba(56,189,248,0.5)]'
+                    : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20 hover:shadow-[0_0_10px_rgba(255,255,255,0.3)]'
                 }`}
               >
-                <span className="h-5 w-5 shrink-0 [&>svg]:h-5 [&>svg]:w-5">
+                {/* Top specular highlight on tab */}
+                <span aria-hidden="true" className="pointer-events-none absolute inset-x-1 top-0 h-[8px] rounded-t-[4px] bg-gradient-to-b from-white/60 to-transparent" />
+                <span className="relative z-10 h-4.5 w-4.5 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] [&>svg]:h-4.5 [&>svg]:w-4.5">
                   <AppIcon name={w.icon} />
                 </span>
-                {!mobile && <span className="truncate text-[12px] font-medium text-white/95">{w.title}</span>}
+                {!mobile && (
+                  <span className="relative z-10 truncate text-[12px] font-medium text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
+                    {w.title}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* tray */}
-        <div className="flex shrink-0 items-center gap-3 border-l border-white/20 pl-3 pr-2" data-testid="world2-tray">
+        {/* Windows Vista System Tray */}
+        <div className="flex shrink-0 items-center gap-2.5 border-l border-white/20 pl-2.5 pr-1.5" data-testid="world2-tray">
           <button
             data-testid="sound-toggle"
             aria-label={sound ? 'Mute system sounds' : 'Unmute system sounds'}
@@ -325,13 +422,15 @@ function Desktop({
               setSound(n);
               setSoundOn(n);
             }}
-            className={`grid h-8 w-8 place-items-center rounded-full border transition-all active:scale-90 ${
-              sound ? 'border-white/50 bg-white/15 text-white hover:bg-white/25' : 'border-[#E8A9A0]/60 bg-[#3A1D1D]/60 text-[#F0B5AC]'
+            className={`grid h-7 w-7 place-items-center rounded-md border transition-all active:scale-90 ${
+              sound ? 'border-white/40 bg-white/15 text-white hover:bg-white/25' : 'border-[#E8A9A0]/60 bg-[#3A1D1D]/60 text-[#F0B5AC]'
             }`}
           >
-            {sound ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {sound ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
           </button>
-          <Wifi className="h-4 w-4 text-white/85" aria-label="Network" />
+          
+          <Wifi className="h-3.5 w-3.5 text-white/85" aria-label="Network" />
+          
           <button
             data-testid="night-toggle"
             aria-label={night ? 'Switch to day mode' : 'Switch to night mode'}
@@ -339,21 +438,35 @@ function Desktop({
               e.stopPropagation();
               setNight(!night);
             }}
-            className={`grid h-8 w-8 place-items-center rounded-full border transition-all active:scale-90 ${
-              night ? 'border-[#67C3EA]/40 bg-[#16304F]/80 text-[#BBDFF7]' : 'border-white/50 bg-white/15 text-white hover:bg-white/25'
+            className={`grid h-7 w-7 place-items-center rounded-md border transition-all active:scale-90 ${
+              night ? 'border-[#67C3EA]/40 bg-[#16304F]/80 text-[#BBDFF7]' : 'border-white/40 bg-white/15 text-white hover:bg-white/25'
             }`}
           >
-            {night ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+            {night ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />}
           </button>
+          
           <Clock2 night={night} />
+
           <button
             onClick={onExit}
             aria-label="Back to portfolio"
+            title="Log off & Back to Portfolio"
             data-testid="world2-exit"
-            className="grid h-8 w-8 place-items-center rounded-md border border-white/30 bg-white/10 text-white transition-all hover:bg-white/25 active:scale-95"
+            className="grid h-7 w-7 place-items-center rounded-md border border-white/30 bg-white/10 text-white transition-all hover:bg-white/25 active:scale-95"
           >
             <LogOut className="h-3.5 w-3.5" />
           </button>
+
+          {/* Vista Show Desktop vertical bar at far right */}
+          <div
+            title="Show Desktop"
+            onClick={() => {
+              mgr.windows.forEach((w) => {
+                if (!w.min) mgr.minimize(w.key);
+              });
+            }}
+            className="ml-1 h-8 w-2 cursor-pointer rounded-r-sm border-l border-white/40 bg-white/15 hover:bg-white/35"
+          />
         </div>
       </motion.div>
 
@@ -363,7 +476,61 @@ function Desktop({
   );
 }
 
-// ── logout ───────────────────────────────────────────────────
+// ── Windows Vista 3D Start Orb ──────────────────────────────
+
+function VistaStartOrb({
+  isOpen,
+  onClick,
+}: {
+  isOpen: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <button
+      data-testid="world2-start-button"
+      aria-label="Start"
+      onClick={onClick}
+      className={`group relative -top-2 ml-0.5 h-[50px] w-[50px] shrink-0 rounded-full transition-all active:scale-95 ${
+        isOpen
+          ? 'shadow-[0_0_28px_rgba(0,195,255,0.95)]'
+          : 'shadow-[0_3px_14px_rgba(0,0,0,0.85),0_0_18px_rgba(56,189,248,0.5)] hover:shadow-[0_0_28px_rgba(56,189,248,0.95)]'
+      }`}
+      style={{
+        background: 'radial-gradient(circle at 40% 32%, #42A5F5 0%, #1565C0 46%, #0A2E63 85%, #051A3B 100%)',
+        border: '2px solid rgba(220, 240, 255, 0.85)',
+      }}
+    >
+      {/* 3D Glass Specular Highlight top hemisphere */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-1.5 top-0.5 h-[21px] rounded-full bg-gradient-to-b from-white/90 via-white/25 to-transparent"
+      />
+
+      {/* Windows Vista 4-colored glass pearl emblem */}
+      <div className="relative mx-auto flex h-5 w-5 rotate-[-8deg] flex-wrap items-center justify-center gap-[2.5px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">
+        {/* Red: top-left */}
+        <span className="h-[8.5px] w-[8.5px] rounded-tl-[4px] rounded-br-[1px] bg-gradient-to-br from-[#FF6B6B] to-[#D32F2F] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]" />
+        {/* Green: top-right */}
+        <span className="h-[8.5px] w-[8.5px] rounded-tr-[4px] rounded-bl-[1px] bg-gradient-to-br from-[#81C784] to-[#388E3C] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]" />
+        {/* Blue: bottom-left */}
+        <span className="h-[8.5px] w-[8.5px] rounded-bl-[4px] rounded-tr-[1px] bg-gradient-to-br from-[#64B5F6] to-[#1976D2] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]" />
+        {/* Yellow: bottom-right */}
+        <span className="h-[8.5px] w-[8.5px] rounded-br-[4px] rounded-tl-[1px] bg-gradient-to-br from-[#FFD54F] to-[#FFA000] shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]" />
+      </div>
+
+      {/* Bottom rim reflection */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-2.5 bottom-1 h-1.5 rounded-full bg-gradient-to-t from-white/40 to-transparent blur-[1px]"
+      />
+    </button>
+  );
+}
+
+
+
+
+// ── logout screen ───────────────────────────────────────────
 
 function LoggingOutScreen() {
   return (
@@ -378,37 +545,37 @@ function LoggingOutScreen() {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(700px 420px at 50% 58%, rgba(14,165,233,0.16), transparent 70%), radial-gradient(900px 500px at 50% 110%, rgba(16,185,129,0.10), transparent 70%)',
+            'radial-gradient(circle at 50% 45%, rgba(14, 55, 95, 0.6) 0%, rgba(2, 10, 18, 0.98) 75%)',
         }}
       />
-      <div
-        className="relative h-10 w-10 animate-spin rounded-full border-[3px] border-white/10 border-t-[#38BDF8]"
-        style={{ animationDuration: '0.9s' }}
-        aria-hidden="true"
-      />
-      <p className="relative mt-6 font-display text-xl font-light tracking-[0.3em] text-[#BFE3F7]">
-        Logging off<span className="text-[#38BDF8]">...</span>
-      </p>
-      <p className="relative mt-3 font-mono text-[9px] tracking-[0.4em] text-[#3E6B8A]">HIMESHOS · AERO EDITION</p>
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="h-14 w-14 animate-spin rounded-full border-4 border-cyan-400/20 border-t-cyan-400" />
+        <p className="mt-6 font-display text-2xl font-light tracking-wide text-white">Logging off...</p>
+        <p className="mt-2 text-sm text-[#7BA6CC]">Returning to portfolio</p>
+      </div>
     </motion.div>
   );
 }
 
 function Clock2({ night }: { night: boolean }) {
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const iv = setInterval(() => setNow(new Date()), 10000);
+    const iv = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(iv);
   }, []);
   return (
-    <div className="flex flex-col items-end leading-tight">
-      <span className="text-[12px] font-medium tabular-nums text-white/95">{now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-      <span className="text-[9px] tabular-nums text-white/60">{now.toLocaleDateString([], { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+    <div className="flex flex-col items-end leading-tight select-none">
+      <span className="text-[12px] font-semibold tabular-nums text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </span>
+      <span className="text-[9px] tabular-nums text-white/70">
+        {now.toLocaleDateString([], { day: '2-digit', month: '2-digit', year: 'numeric' })}
+      </span>
     </div>
   );
 }
 
-/* ── start menu ──────────────────────────────────────────── */
+/* ── Windows Vista 2-Pane Start Menu ─────────────────────── */
 
 const START_APPS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'computer', label: "Himesh's Computer", icon: 'about' },
@@ -424,7 +591,7 @@ const START_APPS: Array<{ id: string; label: string; icon: IconKey }> = [
   { id: 'contact', label: 'Contact', icon: 'about' },
 ];
 
-function StartMenu({
+function VistaStartMenu({
   night,
   onClose,
   onOpenIcon,
@@ -445,91 +612,123 @@ function StartMenu({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.98 }}
-      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-      className={`absolute bottom-[66px] left-2 z-[1800] w-[min(92vw,380px)] origin-bottom-left overflow-hidden rounded-2xl border shadow-[0_30px_80px_rgba(4,25,55,0.6)] ${
-        night ? 'border-[#67C3EA]/30' : 'border-white/70'
+      exit={{ opacity: 0, y: 16, scale: 0.98 }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      className={`absolute bottom-[54px] left-2 z-[1800] flex w-[min(94vw,440px)] origin-bottom-left overflow-hidden rounded-[8px] border shadow-[0_25px_80px_rgba(0,0,0,0.85)] ${
+        night ? 'border-[#67C3EA]/35' : 'border-white/70'
       }`}
       style={{
-        background: night
-          ? 'linear-gradient(170deg, rgba(14,32,56,0.97), rgba(8,20,38,0.97))'
-          : 'linear-gradient(165deg, rgba(240,250,255,0.96), rgba(214,236,252,0.93))',
-        backdropFilter: 'blur(26px)',
+        boxShadow: '0 30px 90px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.7)',
+        backdropFilter: 'blur(30px) saturate(1.8)',
       }}
       data-testid="world2-start-menu"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className={`flex items-center gap-3 border-b px-4 py-3 ${night ? 'border-[#67C3EA]/20' : 'border-white/70'}`}>
-        <span className={`grid h-10 w-10 place-items-center rounded-xl border shadow-inner ${night ? 'border-[#67C3EA]/30 bg-[#16304F]' : 'border-white/80 bg-gradient-to-b from-[#D6ECFC] to-[#8FC8F0]'}`}>
-          <AppIcon name="intro" className="h-7 w-7" />
-        </span>
+      {/* LEFT PANE: White/Pearl with Pinned Applications & Search Bar */}
+      <div className="flex flex-1 flex-col justify-between bg-gradient-to-b from-white/95 via-white/90 to-[#EBF3FA]/95 p-2.5">
+        <div className="max-h-[380px] overflow-y-auto pr-1">
+          {apps.map((a) => (
+            <button
+              key={a.id}
+              data-testid={`world2-start-${a.id}`}
+              onClick={() => launch(a.id)}
+              className="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-all hover:bg-[#D4E8F8] hover:shadow-sm"
+            >
+              <span className="h-8 w-8 shrink-0 transition-transform group-hover:scale-110 drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)] [&>svg]:h-8 [&>svg]:w-8">
+                <AppIcon name={a.icon} />
+              </span>
+              <span className="text-[13px] font-semibold text-[#183B5E]">{a.label}</span>
+            </button>
+          ))}
+          {apps.length === 0 && (
+            <p className="px-4 py-8 text-center text-[12px] text-slate-500">No programs found.</p>
+          )}
+        </div>
+
+        {/* Windows Vista Iconic Search Box with Round Blue Magnifier */}
+        <div className="mt-2 pt-2 border-t border-slate-200">
+          <div className="flex items-center gap-2 rounded-full border border-[#85B8DE] bg-white px-3 py-1.5 shadow-inner">
+            <input
+              data-testid="world2-start-search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && apps[0]) launch(apps[0].id);
+              }}
+              placeholder="Start Search"
+              aria-label="Start Search"
+              className="w-full bg-transparent text-[12.5px] italic text-[#183B5E] placeholder:text-slate-400 outline-none"
+            />
+            <button
+              className="grid h-5 w-5 place-items-center rounded-full bg-gradient-to-br from-[#38BDF8] to-[#0284C7] text-white shadow-sm"
+              aria-label="Search"
+            >
+              <Search className="h-3 w-3" strokeWidth={2.5} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT PANE: Dark Vista Aero Glass with User Profile & System Shortcuts */}
+      <div
+        className="flex w-[160px] shrink-0 flex-col justify-between border-l border-white/25 p-3 text-white"
+        style={{
+          background: night
+            ? 'linear-gradient(180deg, rgba(8,20,38,0.92) 0%, rgba(4,10,20,0.98) 100%)'
+            : 'linear-gradient(180deg, rgba(16,42,70,0.88) 0%, rgba(8,24,44,0.95) 100%)',
+        }}
+      >
         <div>
-          <p className={`text-sm font-bold ${night ? 'text-[#D8EAF8]' : 'text-[#173A5E]'}`}>Himesh Soni</p>
-          <p className="font-mono text-[9px] tracking-[0.25em] text-[#7FA5C4]">HIMESHOS · AERO EDITION</p>
-        </div>
-        {night && <Moon className="ml-auto h-4 w-4 text-[#9FDBFA]" />}
-      </div>
+          {/* User Profile Picture Box */}
+          <div className="flex flex-col items-center border-b border-white/15 pb-3">
+            <div className="relative grid h-12 w-12 place-items-center rounded-lg border-2 border-white/80 bg-gradient-to-br from-[#60A5FA] to-[#1E40AF] shadow-[0_4px_12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.8)]">
+              <span className="text-xl font-bold text-white drop-shadow">H</span>
+            </div>
+            <p className="mt-2 text-xs font-bold text-white drop-shadow">Himesh Soni</p>
+            <p className="font-mono text-[8px] text-cyan-200 tracking-wider">VISTA EDITION</p>
+          </div>
 
-      <div className="px-3 pt-3">
-        <div className={`flex items-center gap-2 rounded-full border px-4 py-2 shadow-inner ${night ? 'border-[#67C3EA]/25 bg-[#0A1B2E]/80' : 'border-[#9CC8E8] bg-white/85'}`}>
-          <Search className="h-3.5 w-3.5 text-[#7FA5C4]" />
-          <input
-            data-testid="world2-start-search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && apps[0]) launch(apps[0].id);
-            }}
-            placeholder="Search..."
-            aria-label="Search applications"
-            className={`w-full bg-transparent text-[13px] outline-none ${night ? 'text-[#D8EAF8] placeholder:text-[#5E8FAD]' : 'text-[#173A5E] placeholder:text-[#9FB9CE]'}`}
-          />
+          {/* Quick Folder Links */}
+          <div className="mt-2.5 flex flex-col gap-1 text-[11.5px] text-white/90">
+            {[
+              { id: 'computer', label: 'Computer' },
+              { id: 'built', label: 'Documents' },
+              { id: 'pictures', label: 'Pictures' },
+              { id: 'music', label: 'Music' },
+              { id: 'settings', label: 'Control Panel' },
+            ].map((link) => (
+              <button
+                key={link.id}
+                onClick={() => launch(link.id)}
+                className="w-full rounded px-2 py-1.5 text-left font-medium transition-colors hover:bg-white/15"
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="max-h-[40vh] overflow-y-auto p-2">
-        {apps.map((a) => (
+        {/* Bottom Shut Down & Lock Buttons */}
+        <div className="mt-4 flex items-center justify-between border-t border-white/15 pt-2.5">
           <button
-            key={a.id}
-            data-testid={`world2-start-${a.id}`}
-            onClick={() => launch(a.id)}
-            className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${night ? 'hover:bg-white/8 hover:bg-white/10' : 'hover:bg-white/70'}`}
+            data-testid="world2-back-to-portfolio"
+            onClick={onExit}
+            title="Shut Down / Back to Portfolio"
+            className="flex items-center gap-1.5 rounded-md border border-red-400/50 bg-gradient-to-b from-red-500/80 to-red-700/90 px-2.5 py-1 text-[11px] font-semibold text-white shadow transition-all hover:brightness-110 active:scale-95"
           >
-            <span className="h-8 w-8 shrink-0 transition-transform group-hover:scale-110 [&>svg]:h-8 [&>svg]:w-8">
-              <AppIcon name={a.icon} />
-            </span>
-            <span className={`text-[13px] font-semibold ${night ? 'text-[#D8EAF8]' : 'text-[#173A5E]'}`}>{a.label}</span>
+            <Power className="h-3 w-3" strokeWidth={2.5} />
+            Shut Down
           </button>
-        ))}
-        <button
-          data-testid="world2-start-settings"
-          onClick={() => {
-            onOpenIcon('settings');
-            onClose();
-          }}
-          className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${night ? 'hover:bg-white/10' : 'hover:bg-white/70'}`}
-        >
-          <span className={`grid h-8 w-8 place-items-center rounded-lg border ${night ? 'border-[#67C3EA]/30 bg-[#16304F] text-[#BBDFF7]' : 'border-white/80 bg-white/70 text-[#33608A]'}`}>
-            <SettingsIcon className="h-4 w-4" />
-          </span>
-          <span className={`text-[13px] font-semibold ${night ? 'text-[#D8EAF8]' : 'text-[#173A5E]'}`}>Settings</span>
-        </button>
-        {apps.length === 0 && (
-          <p className={`px-4 py-5 text-center text-[12px] ${night ? 'text-[#6E93B5]' : 'text-[#7FA5C4]'}`}>No results found.</p>
-        )}
-      </div>
-
-      <div className={`flex items-center justify-between border-t px-4 py-2.5 ${night ? 'border-[#67C3EA]/20' : 'border-white/70'}`}>
-        <span className="font-mono text-[8.5px] tracking-[0.25em] text-[#7FA5C4]">AERO · FRUTIGER EDITION</span>
-        <button
-          data-testid="world2-back-to-portfolio"
-          onClick={onExit}
-          className="flex items-center gap-2 rounded-lg border border-white/60 bg-white/70 px-3 py-1.5 text-[12px] font-medium text-[#173A5E] shadow-sm transition-all hover:bg-white active:scale-95"
-        >
-          <LogOut className="h-3.5 w-3.5" /> Back to Portfolio
-        </button>
+          <button
+            onClick={onClose}
+            title="Lock"
+            className="grid h-7 w-7 place-items-center rounded-md border border-white/30 bg-white/15 text-white transition-all hover:bg-white/25 active:scale-95"
+          >
+            <Lock className="h-3 w-3" strokeWidth={2.5} />
+          </button>
+        </div>
       </div>
     </motion.div>
   );

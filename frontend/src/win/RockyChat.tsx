@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Send, X } from 'lucide-react';
 import RockyCharacter from '../components/RockyCharacter';
 
-const SplineViewerEl = 'spline-viewer' as unknown as React.FC<{ url: string; className?: string }>;
+// @ts-ignore — custom element, no types
+const SplineViewerEl = 'spline-viewer' as any;
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -44,6 +45,21 @@ export default function RockyChat() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const mobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
+  // Local demo fallback — used when backend is offline
+  const localDemo = (msg: string): string => {
+    const m = msg.toLowerCase();
+    if (/who is himesh|about himesh/.test(m)) return 'Himesh Soni. Third-year CS student at BITS Pilani Dubai Campus. He builds things he is curious about — AI, quantum, fintech, creative coding. Amaze.';
+    if (/project|built|build/.test(m)) return 'Projects: RoadPulse, Defi Risk Checker, Indoor RF Simulator, Pixelator, TerminalAI, CogMap, ESP32 CSI Motion Radar, and more. Amaze.';
+    if (/research|qkd|quantum/.test(m)) return 'Research: QKD + ML Eve detection, ML for scheduling, reliability-aware vision for diabetic retinopathy grading. All ongoing — no final conclusions yet. Honest science.';
+    if (/pixelator|pixel/.test(m)) return 'An image pixelating app. Grid sampling or organic SLIC segmentation. It actually runs inside this portfolio — open the Experiments app.';
+    if (/contact|email|reach|hire/.test(m)) return 'Email: himeshsoni704@gmail.com · GitHub: github.com/himeshsoni704 · LinkedIn: himesh-soni · Instagram @hx.cr3';
+    if (/skill|language|stack/.test(m)) return 'Python, Java, C/C++, JS/TS, React, FastAPI. AI/ML, Computer Vision, Qiskit, DaVinci Resolve. Amaze.';
+    if (/photo|camera|film/.test(m)) return 'He enjoys photography and filmmaking — involved with Reflexions Photography & Videography Club at BITS Dubai. NOT a videographer. His words.';
+    if (/hello|hi|hey/.test(m)) return 'Amaze. Hello. I am Rocky. Ask me about Himesh — projects, research, or his random experiments.';
+    if (/rock|are you/.test(m)) return 'Finally. Someone asks the important questions. Yes — a rock living inside a computer.';
+    return 'I do not know this yet. Himesh has not told me.';
+  };
+
   const send = useCallback(
     async (text: string) => {
       const msg = text.trim();
@@ -56,11 +72,14 @@ export default function RockyChat() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: msg, session_id: sessionRef.current }),
+          signal: AbortSignal.timeout(4000),
         });
         const data = await res.json();
         setMessages((m) => [...m, { role: 'rocky', text: data.reply, source: data.source }]);
       } catch {
-        setMessages((m) => [...m, { role: 'rocky', text: 'My signal dropped for a second. Try again.', source: 'demo' }]);
+        // Backend offline — fall back to local demo replies
+        const reply = localDemo(msg);
+        setMessages((m) => [...m, { role: 'rocky', text: reply, source: 'demo' }]);
       } finally {
         setTyping(false);
       }
@@ -80,12 +99,16 @@ export default function RockyChat() {
     }
   }, [open]);
 
+  const [hoverLauncher, setHoverLauncher] = useState(false);
+
   return (
     <>
       {/* floating launcher */}
       <motion.button
         data-testid="rocky-chat-trigger"
         onClick={() => setOpen(true)}
+        onMouseEnter={() => setHoverLauncher(true)}
+        onMouseLeave={() => setHoverLauncher(false)}
         aria-label="Open Rocky AI chat"
         initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: open ? 0 : 1, scale: open ? 0.6 : 1, pointerEvents: open ? 'none' : 'auto' }}
@@ -93,7 +116,16 @@ export default function RockyChat() {
         className="fixed bottom-[78px] right-5 z-[150] flex items-center gap-3 rounded-full border-2 border-white/70 py-2 pl-2.5 pr-5 shadow-[0_14px_40px_rgba(10,60,110,0.45)] transition-transform hover:scale-105 active:scale-95"
         style={{ background: 'linear-gradient(165deg, rgba(246,251,255,0.92), rgba(190,226,250,0.85))', backdropFilter: 'blur(16px)' }}
       >
-        <RockyCharacter className="h-10 w-10" />
+        <motion.div
+          animate={hoverLauncher ? { x: 0 } : { x: [0, 4, 0, -3, 0] }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <RockyCharacter
+            className="h-10 w-10"
+            mode={hoverLauncher ? 'wave' : 'walk'}
+            facing={hoverLauncher ? 'center' : 'right'}
+          />
+        </motion.div>
         <span className="text-left">
           <span className="block text-[12px] font-bold tracking-wide text-[#173A5E]">Rocky AI</span>
           <span className="flex items-center gap-1.5 font-mono text-[8px] tracking-[0.2em] text-[#1E7A4E]">
@@ -122,13 +154,13 @@ export default function RockyChat() {
             {/* title bar */}
             <div className="flex h-10 shrink-0 items-center justify-between border-b border-white/60 bg-gradient-to-b from-[#D5ECFD]/95 to-[#ABD6F6]/85 px-3">
               <div className="flex items-center gap-2.5">
-                <motion.span animate={wave ? { rotate: [0, -12, 8, -8, 0] } : { rotate: 0 }} transition={{ duration: 0.9 }} className="block">
+                <span className="block">
                   {ROCKY_SPLINE_URL ? (
                     <SplineViewerEl url={ROCKY_SPLINE_URL} className="block h-7 w-7" />
                   ) : (
-                    <RockyCharacter className="h-8 w-8" />
+                    <RockyCharacter className="h-8 w-8" mode={wave ? 'wave' : 'idle'} waving={wave} />
                   )}
-                </motion.span>
+                </span>
                 <span className="text-[12.5px] font-semibold tracking-wide text-[#1A3A5C]">Rocky AI</span>
                 <span className="flex items-center gap-1.5 rounded-full border border-[#7CCFA5] bg-[#E4F7EE] px-2 py-0.5 font-mono text-[8px] tracking-[0.18em] text-[#1E7A4E]">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#1E7A4E]" /> ONLINE
